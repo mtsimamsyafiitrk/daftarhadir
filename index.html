@@ -574,9 +574,24 @@
 const SUPABASE_URL = 'https://sdvsrqqwoahfbfublwpl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkdnNycXF3b2FoZmJmdWJsd3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTExODYsImV4cCI6MjA5MzI2NzE4Nn0.OByh8cWeTz-cxlUq2Rf1kWGuq4tYKLaXECU0rZU1bAo';
 const SUPABASE_READY = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 30;
-const supabaseClient = SUPABASE_READY && window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+// Supabase JS v2 bisa ter-export sebagai window.supabase.createClient
+// atau window.supabase.default.createClient tergantung CDN/bundler
+function _createSupabaseClient() {
+  if (!SUPABASE_READY) return null;
+  try {
+    const sb = window.supabase;
+    if (!sb) return null;
+    if (typeof sb.createClient === 'function')
+      return sb.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (sb.default && typeof sb.default.createClient === 'function')
+      return sb.default.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return null;
+  } catch(e) {
+    console.error('Supabase init error:', e);
+    return null;
+  }
+}
+const supabaseClient = _createSupabaseClient();
 
 let currentUser = null;
 let currentRole = 'guest';
@@ -706,12 +721,22 @@ async function logout() {
 
 async function initAuth() {
   if (!supabaseClient) {
-    renderLogin();
+    renderLogin('⚠️ Supabase tidak dapat dimuat. Periksa koneksi internet dan refresh halaman.');
     return;
   }
 
-  const { data } = await supabaseClient.auth.getSession();
-  currentUser = data.session?.user || null;
+  let sessionData;
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
+    sessionData = data;
+  } catch (err) {
+    console.error('Supabase getSession error:', err);
+    renderLogin('⚠️ Gagal menghubungkan ke Supabase: ' + err.message + '. Periksa koneksi internet lalu refresh.');
+    return;
+  }
+
+  currentUser = sessionData.session?.user || null;
   currentRole = currentUser ? getRoleFromEmail(currentUser.email) : 'guest';
 
   supabaseClient.auth.onAuthStateChange((_event, session) => {
@@ -1272,9 +1297,12 @@ function renderHome() {
       <p>Selamat datang di SPMB Al Imam Asy-Syafi'i Tarakan</p>
     </div>
 
-    <div class="alert alert-info">
-      <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">info</span></span>
-      <span>Data tersimpan di perangkat ini. Jangan hapus cache browser untuk menjaga data tetap aman.</span>
+    <div class="alert ${usingSupabase() ? 'alert-success' : 'alert-info'}" style="align-items:flex-start">
+      <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">${usingSupabase() ? 'cloud_done' : 'info'}</span></span>
+      <span>${usingSupabase()
+        ? `Data tersimpan di <strong>cloud Supabase</strong> &mdash; dapat diakses dari perangkat manapun selama ada internet.`
+        : 'Data tersimpan di perangkat ini. Jangan hapus cache browser untuk menjaga data tetap aman.'
+      }</span>
     </div>
 
     <!-- STATISTIK -->
