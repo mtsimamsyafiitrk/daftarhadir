@@ -1,0 +1,3385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPMB Al Imam Asy-Syafi'i 2026/2027</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  /* ── Material Symbols ── */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;
+  }
+
+  /* ── CSS Variables (dipertahankan untuk JS render functions) ── */
+  :root {
+    --primary:        #006d37;
+    --primary-light:  #2ecc71;
+    --primary-dark:   #004d27;
+    --accent:         #735c00;
+    --accent-light:   #d7ae00;
+    --bg:             #fcf9f0;
+    --bg-card:        #ffffff;
+    --bg-input:       #f6f3eb;
+    --text:           #1c1c17;
+    --text-muted:     #3d4a3e;
+    --text-light:     #6c7b6d;
+    --border:         #bbcbbb;
+    --border-focus:   #006d37;
+    --shadow:         0 2px 12px rgba(0,109,55,0.08);
+    --shadow-lg:      0 8px 32px rgba(0,109,55,0.14);
+    --radius:         1rem;
+    --radius-sm:      0.75rem;
+    --danger:         #ba1a1a;
+    --danger-light:   #ffdad6;
+    --success:        #006d37;
+    --success-light:  #e8f5ee;
+    --info:           #2563eb;
+    --info-light:     #eff6ff;
+    --warning:        #735c00;
+    --warning-light:  #fffbeb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #fcf9f0;
+    color: #1c1c17;
+    min-height: 100dvh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: rgba(252,249,240,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid #bbcbbb40;
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,109,55,0.06);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .header-logo {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #006d37, #2ecc71);
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,109,55,0.3);
+  }
+  .header-text h1 {
+    font-family: 'Amiri', serif;
+    font-size: 17px; font-weight: 700;
+    color: #006d37; line-height: 1.2;
+    font-style: italic;
+  }
+  .header-text p { font-size: 10px; color: #6c7b6d; margin-top: 1px; }
+  .header-badge {
+    margin-left: auto;
+    background: #f1eee5;
+    color: #006d37;
+    font-size: 10px; font-weight: 800;
+    padding: 4px 10px; border-radius: 999px;
+    letter-spacing: 0.5px;
+    border: 1px solid #bbcbbb;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 0 calc(8px + env(safe-area-inset-bottom));
+    background: rgba(252,249,240,0.75);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 -2px 20px rgba(0,109,55,0.08);
+  }
+  .bottom-nav-inner {
+    display: flex; justify-content: space-around; align-items: center;
+    max-width: 480px; margin: 8px auto 0;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 12px rgba(0,109,55,0.1);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px; padding: 8px 14px;
+    cursor: pointer; border: none; background: none;
+    color: #6c7b6d; font-family: inherit;
+    transition: all 0.3s; border-radius: 999px;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 64px;
+  }
+  .nav-item .nav-icon {
+    font-size: 22px; line-height: 1;
+    transition: transform 0.3s;
+  }
+  .nav-item .nav-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+  .nav-item.active {
+    background: linear-gradient(135deg, #006d37, #2ecc71);
+    color: white;
+    transform: translateY(-6px);
+    box-shadow: 0 4px 16px rgba(0,109,55,0.35);
+  }
+  .nav-item.active .nav-icon { transform: scale(1.1); }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    padding: 20px 16px 100px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header { margin-bottom: 20px; }
+  .page-header h2 {
+    font-family: 'Noto Serif', serif;
+    font-size: 22px; font-weight: 700;
+    color: #1c1c17;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-header p { font-size: 13px; color: #6c7b6d; margin-top: 4px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,109,55,0.06), 0 4px 16px rgba(0,109,55,0.05);
+    border: 1px solid #bbcbbb40;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 800;
+    color: #006d37;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid #f1eee5;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #3d4a3e; margin-bottom: 5px; letter-spacing: 0.2px;
+  }
+  label .req { color: #ba1a1a; margin-left: 2px; }
+  label .hint { font-weight: 400; color: #6c7b6d; font-size: 11px; }
+
+  input[type="text"], input[type="number"], input[type="date"], input[type="password"], select, textarea {
+    width: 100%;
+    background: #f6f3eb;
+    border: 1.5px solid #bbcbbb;
+    border-radius: 0.75rem;
+    padding: 10px 14px;
+    font-size: 14px; font-family: inherit;
+    color: #1c1c17;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none; -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #006d37;
+    box-shadow: 0 0 0 3px rgba(0,109,55,0.12);
+    background: #fff;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236c7b6d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px;
+  }
+
+  /* ── RADIO / CHECK ── */
+  .radio-group, .check-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-btn, .check-btn { flex: 0 0 auto; }
+  .radio-btn input, .check-btn input { display: none; }
+  .radio-btn label, .check-btn label {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border: 1.5px solid #bbcbbb; border-radius: 999px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.2s; background: #f6f3eb;
+    user-select: none; margin: 0; color: #3d4a3e;
+  }
+  .radio-btn input:checked + label, .check-btn input:checked + label {
+    background: #006d37; border-color: #006d37; color: white;
+    box-shadow: 0 2px 8px rgba(0,109,55,0.25);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 11px 20px; border-radius: 0.875rem;
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer; border: none; transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #006d37, #2ecc71);
+    color: white; box-shadow: 0 3px 10px rgba(0,109,55,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 4px 16px rgba(0,109,55,0.4); transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-accent { background: #f1eee5; color: #006d37; border: 1.5px solid #bbcbbb; font-weight: 700; }
+  .btn-accent:hover { background: #ebe8df; }
+  .btn-outline { background: transparent; border: 1.5px solid #bbcbbb; color: #3d4a3e; }
+  .btn-outline:hover { border-color: #006d37; color: #006d37; }
+  .btn-danger { background: #ba1a1a; color: white; box-shadow: 0 2px 8px rgba(186,26,26,0.25); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+  .btn-full { width: 100%; }
+
+  /* ── BADGES ── */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge-mts-pa { background: #dbeafe; color: #1e40af; }
+  .badge-mts-pi { background: #fce7f3; color: #9d174d; }
+  .badge-ma { background: #dcfce7; color: #15803d; }
+  .badge-online { background: #eff6ff; color: #2563eb; }
+  .badge-offline { background: #f0fdf4; color: #15803d; }
+
+  /* ── PESERTA ITEM ── */
+  .peserta-item {
+    background: #fff; border-radius: 1rem; padding: 12px 14px;
+    margin-bottom: 10px; border: 1px solid #bbcbbb40;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 1px 4px rgba(0,109,55,0.06);
+    transition: box-shadow 0.2s;
+  }
+  .peserta-item:hover { box-shadow: 0 4px 16px rgba(0,109,55,0.1); }
+  .peserta-avatar {
+    width: 44px; height: 44px; border-radius: 999px;
+    background: #f1eee5; border: 2px solid #bbcbbb40;
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 18px; overflow: hidden;
+  }
+  .peserta-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .peserta-info { flex: 1; min-width: 0; }
+  .peserta-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .peserta-meta { font-size: 11px; color: #6c7b6d; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+  .peserta-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-icon {
+    width: 34px; height: 34px; border-radius: 0.625rem;
+    border: 1px solid #bbcbbb; background: #f6f3eb;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent; color: #3d4a3e;
+  }
+  .btn-icon:hover { background: #006d37; border-color: #006d37; color: white; }
+  .btn-icon.danger:hover { background: #ba1a1a; border-color: #ba1a1a; color: white; }
+
+  /* ── MISC LAYOUT ── */
+  .section-divider {
+    display: flex; align-items: center; gap: 10px; margin: 20px 0 16px;
+  }
+  .section-divider span {
+    font-size: 11px; font-weight: 800; color: #006d37;
+    text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: #bbcbbb;
+  }
+
+  /* ── PHOTO AREA ── */
+  .photo-area {
+    border: 2px dashed #bbcbbb; border-radius: 1rem;
+    padding: 24px; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: #f6f3eb;
+  }
+  .photo-area:hover { border-color: #006d37; background: #f0fdf4; }
+  .photo-area .photo-icon { font-size: 36px; margin-bottom: 8px; }
+  .photo-area p { font-size: 13px; color: #6c7b6d; }
+  .photo-preview {
+    width: 100%; max-height: 220px; object-fit: cover;
+    border-radius: 0.75rem; display: none; margin-bottom: 10px;
+  }
+  .photo-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
+  .stat-card {
+    background: #fff; border-radius: 1.25rem; padding: 18px;
+    border: 1px solid #bbcbbb30; text-align: center;
+    box-shadow: 0 1px 4px rgba(0,109,55,0.06);
+  }
+  .stat-number { font-size: 36px; font-weight: 800; color: #006d37; line-height: 1; font-family: 'Noto Serif', serif; }
+  .stat-label { font-size: 11px; color: #6c7b6d; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── ALERTS ── */
+  .alert {
+    padding: 12px 14px; border-radius: 0.875rem; font-size: 13px;
+    margin-bottom: 14px; display: flex; align-items: flex-start; gap: 8px;
+  }
+  .alert-info    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .alert-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    padding: 6px 16px; border-radius: 999px;
+    border: 1.5px solid #bbcbbb; background: #fff;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    white-space: nowrap; color: #6c7b6d; transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .filter-chip.active { background: #006d37; border-color: #006d37; color: white; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1.5px solid #bbcbbb;
+    border-radius: 0.875rem; padding: 8px 12px;
+    margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,109,55,0.04);
+  }
+  .search-box .material-symbols-outlined { color: #6c7b6d; font-size: 18px; }
+  .search-box input {
+    border: 0 !important; background: transparent !important;
+    padding: 2px 0 !important; box-shadow: none !important;
+  }
+  .audit-list { display: flex; flex-direction: column; gap: 8px; }
+  .audit-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border-radius: 0.75rem;
+    background: var(--bg); border: 1px solid var(--border);
+  }
+  .audit-dot {
+    width: 9px; height: 9px; border-radius: 999px;
+    background: var(--warning); margin-top: 6px; flex-shrink: 0;
+  }
+  .audit-item.ok .audit-dot { background: var(--success); }
+  .audit-item.danger .audit-dot { background: var(--danger); }
+  .audit-item strong { display: block; font-size: 13px; color: var(--text); }
+  .audit-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── LINKED BADGES ── */
+  .linked-badge   { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: #f0fdf4; color: #15803d; font-weight: 700; }
+  .unlinked-badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: #fffbeb; color: #92400e; font-weight: 700; }
+
+  /* ── REKAP TABLE ── */
+  .rekap-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rekap-table th {
+    background: #006d37; color: white; padding: 8px 10px;
+    text-align: left; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .rekap-table th:first-child { border-radius: 0.5rem 0 0 0; }
+  .rekap-table th:last-child  { border-radius: 0 0.5rem 0 0; }
+  .rekap-table td { padding: 9px 10px; border-bottom: 1px solid #bbcbbb30; vertical-align: middle; }
+  .rekap-table tr:last-child td { border-bottom: none; }
+  .rekap-table tr:hover td { background: #f6f3eb; }
+
+  /* ── CONFIRM DIALOG ── */
+  .confirm-overlay {
+    position: fixed; inset: 0; background: rgba(28,28,23,0.5);
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: #fff; border-radius: 1.5rem; padding: 28px;
+    max-width: 320px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,109,55,0.2);
+  }
+  .confirm-box .confirm-icon { font-size: 44px; margin-bottom: 14px; }
+  .confirm-box h3 { font-family: 'Noto Serif', serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .confirm-box p { font-size: 13px; color: #6c7b6d; margin-bottom: 20px; line-height: 1.5; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns .btn { flex: 1; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1c1c17; color: white;
+    padding: 11px 22px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; transition: all 0.3s; z-index: 400;
+    white-space: nowrap; pointer-events: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { height: 6px; background: #f1eee5; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #006d37, #2ecc71); border-radius: 999px; transition: width 0.5s ease; }
+
+  /* ── MISC UTILS ── */
+  .text-center { text-align: center; }
+  .text-muted  { color: #6c7b6d; }
+  .text-small  { font-size: 12px; }
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 12px; }
+  .flex-row     { display: flex; align-items: center; gap: 8px; }
+  .flex-end     { justify-content: flex-end; }
+  .flex-between { justify-content: space-between; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  hr.divider { border: none; border-top: 1px solid #bbcbbb40; margin: 14px 0; }
+
+  .required-note { font-size: 11px; color: #6c7b6d; margin-bottom: 16px; }
+  .required-note span { color: #ba1a1a; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 40px 20px; color: #6c7b6d; }
+  .empty-state .empty-icon { font-size: 52px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white !important; font-size: 12px; }
+    .app-header, .bottom-nav, .no-print, .btn { display: none !important; }
+    .main-content { padding: 0; max-width: 100%; }
+    .card { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; border-radius: 0 !important; }
+  }
+  #print-area { display: none; font-family: 'Plus Jakarta Sans', sans-serif; color: #111; }
+  .app-body { background: #fcf9f0; }
+  .app-body.auth-mode .app-header,
+  .app-body.auth-mode .bottom-nav { display: none; }
+
+  .login-page {
+    min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px; background: radial-gradient(circle at top, #e8f5ee 0, #fcf9f0 42%, #f6f3eb 100%);
+  }
+  .login-card {
+    width: 100%; max-width: 420px; background: #fff; border: 1px solid #bbcbbb66;
+    border-radius: 1.25rem; padding: 24px; box-shadow: 0 14px 40px rgba(0,109,55,0.12);
+  }
+  .login-mark {
+    width: 56px; height: 56px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #006d37, #2ecc71); color: #fff;
+    box-shadow: 0 8px 24px rgba(0,109,55,0.22); margin-bottom: 16px;
+  }
+  .login-card h1 {
+    font-family: 'Noto Serif', serif; font-size: 23px; line-height: 1.2;
+    color: #1c1c17; margin-bottom: 6px;
+  }
+  .login-card p { color: #6c7b6d; font-size: 13px; margin-bottom: 18px; }
+  .auth-user {
+    margin-left: auto; display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: #3d4a3e; min-width: 0;
+  }
+  .auth-user span { max-width: 145px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    border-radius: 999px; padding: 4px 9px; font-size: 10px; font-weight: 800;
+    background: #e8f5ee; color: #006d37; border: 1px solid #bbcbbb;
+  }
+  .logout-btn {
+    border: 1px solid #bbcbbb; background: #fff; color: #3d4a3e;
+    border-radius: 999px; width: 30px; height: 30px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  ::selection { background: rgba(46,204,113,0.25); color: #1c1c17; }
+</style>
+</head>
+<body class="app-body">
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="header-logo"><span id="header-logo-inner">🕌</span></div>
+    <div class="header-text">
+      <h1 id="header-title">Al Imam Asy-Syafi'i</h1>
+      <p id="header-sub">Sistem Penerimaan Siswa Baru · Tarakan</p>
+    </div>
+    <div class="header-badge" id="header-badge">2026/2027</div>
+    <div class="auth-user" id="authUserBox" style="display:none">
+      <span class="role-pill" id="authRoleLabel">Petugas</span>
+      <span id="authEmailLabel"></span>
+      <button class="logout-btn" onclick="logout()" title="Keluar">
+        <span class="material-symbols-outlined" style="font-size:16px">logout</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="main-content">
+  <!-- Pages rendered by JS -->
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-item active" onclick="showPage('home')" id="nav-home">
+      <span class="nav-icon material-symbols-outlined">dashboard</span>
+      <span class="nav-label">Beranda</span>
+    </button>
+    <button class="nav-item" onclick="showPage('siswa')" id="nav-siswa">
+      <span class="nav-icon material-symbols-outlined">school</span>
+      <span class="nav-label">Siswa</span>
+    </button>
+    <button class="nav-item" onclick="showPage('ortu')" id="nav-ortu">
+      <span class="nav-icon material-symbols-outlined">family_restroom</span>
+      <span class="nav-label">Ortu</span>
+    </button>
+    <button class="nav-item" onclick="showPage('rekap')" id="nav-rekap">
+      <span class="nav-icon material-symbols-outlined">analytics</span>
+      <span class="nav-label">Rekap</span>
+    </button>
+    <button class="nav-item" onclick="showPage('pengaturan')" id="nav-pengaturan">
+      <span class="nav-icon material-symbols-outlined">settings</span>
+      <span class="nav-label">Pengaturan</span>
+    </button>
+  </div>
+</nav>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <h3 id="confirmTitle">Konfirmasi</h3>
+    <p id="confirmMsg">Apakah Anda yakin?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-outline" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-danger" id="confirmOkBtn" onclick="confirmAction()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PRINT AREA -->
+<div id="print-area"></div>
+
+
+<script>
+
+
+// Isi dengan Project URL dan anon public key dari Supabase Project Settings > API.
+const SUPABASE_URL = 'https://sdvsrqqwoahfbfublwpl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkdnNycXF3b2FoZmJmdWJsd3BsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2OTExODYsImV4cCI6MjA5MzI2NzE4Nn0.OByh8cWeTz-cxlUq2Rf1kWGuq4tYKLaXECU0rZU1bAo';
+const SUPABASE_READY = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 30;
+const supabaseClient = SUPABASE_READY && window.supabase
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let currentUser = null;
+let currentRole = 'guest';
+
+function getRoleFromEmail(email) {
+  return String(email || '').toLowerCase().includes('admin') ? 'admin' : 'petugas';
+}
+
+function isAdmin() {
+  return currentRole === 'admin';
+}
+
+function requireAdmin(action = 'Aksi ini') {
+  if (isAdmin()) return true;
+  showToast(`${action} hanya bisa dilakukan admin.`, 3000);
+  return false;
+}
+
+function updateAuthHeader() {
+  const box = document.getElementById('authUserBox');
+  const emailEl = document.getElementById('authEmailLabel');
+  const roleEl = document.getElementById('authRoleLabel');
+  const settingsNav = document.getElementById('nav-pengaturan');
+  const siswaNav = document.getElementById('nav-siswa');
+  const ortuNav = document.getElementById('nav-ortu');
+  if (!box || !emailEl || !roleEl) return;
+
+  if (!currentUser) {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = 'flex';
+  emailEl.textContent = currentUser.email || '';
+  roleEl.textContent = isAdmin() ? 'Admin' : 'Petugas';
+  if (siswaNav) siswaNav.style.display = isAdmin() ? '' : 'none';
+  if (ortuNav) ortuNav.style.display = isAdmin() ? '' : 'none';
+  if (settingsNav) settingsNav.style.display = isAdmin() ? '' : 'none';
+}
+
+function setAuthShell(isLoggedIn) {
+  document.body.classList.toggle('auth-mode', !isLoggedIn);
+}
+
+function renderLogin(message = '') {
+  setAuthShell(false);
+  updateAuthHeader();
+  document.getElementById('main-content').innerHTML = `
+    <div class="login-page">
+      <div class="login-card">
+        <div class="login-mark">
+          <span class="material-symbols-outlined" style="font-size:28px">lock</span>
+        </div>
+        <h1>Login SPMB</h1>
+        <p>Masuk menggunakan akun Supabase Auth yang sudah dibuat untuk admin atau petugas.</p>
+
+        ${!SUPABASE_READY ? `
+          <div class="alert alert-warning">
+            <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle">warning</span></span>
+            <span style="font-size:12px">Supabase belum dikonfigurasi. Isi <strong>SUPABASE_URL</strong> dan <strong>SUPABASE_ANON_KEY</strong> di bagian atas script HTML.</span>
+          </div>
+        ` : ''}
+
+        ${message ? `
+          <div class="alert alert-warning">
+            <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle">info</span></span>
+            <span style="font-size:12px">${esc(message)}</span>
+          </div>
+        ` : ''}
+
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="text" id="loginEmail" placeholder="contoh: spmb2@mtsimamsyafiitrk.com" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Password akun petugas" autocomplete="current-password" onkeydown="if(event.key==='Enter') login()">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="login()" ${!SUPABASE_READY ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>
+          <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">login</span> Masuk
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function login() {
+  if (!supabaseClient) {
+    renderLogin('Konfigurasi Supabase belum diisi.');
+    return;
+  }
+
+  const email = (document.getElementById('loginEmail')?.value || '').trim();
+  const password = document.getElementById('loginPassword')?.value || '';
+  if (!email || !password) {
+    renderLogin('Email dan password wajib diisi.');
+    setTimeout(() => {
+      const emailInput = document.getElementById('loginEmail');
+      if (emailInput) emailInput.value = email;
+    }, 0);
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    renderLogin('Login gagal. Periksa email dan password.');
+    return;
+  }
+
+  currentUser = data.user;
+  currentRole = getRoleFromEmail(currentUser.email);
+  setAuthShell(true);
+  updateAuthHeader();
+  await loadSupabaseData({ rerender: false });
+  startSupabaseRealtime();
+  showToast(`Login sebagai ${isAdmin() ? 'admin' : 'petugas'}`);
+  showPage('home');
+}
+
+async function logout() {
+  await stopSupabaseRealtime();
+  if (supabaseClient) await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentRole = 'guest';
+  renderLogin();
+}
+
+async function initAuth() {
+  if (!supabaseClient) {
+    renderLogin();
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  currentUser = data.session?.user || null;
+  currentRole = currentUser ? getRoleFromEmail(currentUser.email) : 'guest';
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user || null;
+    currentRole = currentUser ? getRoleFromEmail(currentUser.email) : 'guest';
+    if (!currentUser) renderLogin();
+  });
+
+  if (currentUser) {
+    setAuthShell(true);
+    updateAuthHeader();
+    await loadSupabaseData({ rerender: false });
+    startSupabaseRealtime();
+    showPage('home');
+  } else {
+    renderLogin();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// UPDATE HEADER DARI DATA LEMBAGA
+// ═══════════════════════════════════════════════════
+
+function updateHeaderInfo() {
+  const l = DB.lembaga;
+  const badgeEl = document.getElementById('header-badge');
+  const titleEl = document.getElementById('header-title');
+  const subEl   = document.getElementById('header-sub');
+  const logoEl  = document.getElementById('header-logo-inner');
+  if (badgeEl) badgeEl.textContent = l.tahunAjaran;
+  if (titleEl) titleEl.textContent = l.nama;
+  if (subEl)   subEl.textContent   = l.alamat + ' · SPMB';
+  if (logoEl) {
+    const logo = DB.logo;
+    if (logo) {
+      logoEl.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:cover;border-radius:999px;">`;
+    } else {
+      logoEl.innerHTML = '🕌';
+    }
+  }
+}
+
+
+
+
+// ═══════════════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════════════
+
+// ── In-memory cache (diisi saat load dari Supabase atau localStorage) ──
+const _dbCache = {
+  siswa: null,
+  ortu: null,
+  peserta: null,
+};
+
+const DB = {
+  // ── siswa ──────────────────────────────────────────────────────────
+  get siswa() {
+    if (_dbCache.siswa !== null) return _dbCache.siswa;
+    _dbCache.siswa = JSON.parse(localStorage.getItem('spmb_siswa') || '[]');
+    return _dbCache.siswa;
+  },
+  set siswa(v) {
+    _dbCache.siswa = v;
+    // Hanya simpan ke localStorage saat mode lokal (tidak pakai Supabase)
+    if (!usingSupabase()) {
+      try { localStorage.setItem('spmb_siswa', JSON.stringify(v)); } catch(e) { console.warn('localStorage siswa full, skip save:', e.message); }
+    }
+  },
+
+  // ── ortu ──────────────────────────────────────────────────────────
+  get ortu() {
+    if (_dbCache.ortu !== null) return _dbCache.ortu;
+    _dbCache.ortu = JSON.parse(localStorage.getItem('spmb_ortu') || '[]');
+    return _dbCache.ortu;
+  },
+  set ortu(v) {
+    _dbCache.ortu = v;
+    if (!usingSupabase()) {
+      try { localStorage.setItem('spmb_ortu', JSON.stringify(v)); } catch(e) { console.warn('localStorage ortu full, skip save:', e.message); }
+    }
+  },
+
+  // ── peserta ───────────────────────────────────────────────────────
+  get peserta() {
+    if (_dbCache.peserta !== null) return _dbCache.peserta;
+    _dbCache.peserta = JSON.parse(localStorage.getItem('spmb_peserta') || '[]');
+    return _dbCache.peserta;
+  },
+  set peserta(v) {
+    _dbCache.peserta = v;
+    if (!usingSupabase()) {
+      try { localStorage.setItem('spmb_peserta', JSON.stringify(v)); } catch(e) { console.warn('localStorage peserta full, skip save:', e.message); }
+    }
+  },
+
+  // ── Logo lembaga (base64) — tetap di localStorage, ukurannya kecil ──
+  get logo() {
+    return localStorage.getItem('spmb_logo') || '';
+  },
+  set logo(v) {
+    if (v) { try { localStorage.setItem('spmb_logo', v); } catch(e) { console.warn('localStorage logo full:', e.message); } }
+    else localStorage.removeItem('spmb_logo');
+  },
+
+  // ── Pengaturan lembaga — tetap di localStorage ─────────────────────
+  get lembaga() {
+    return JSON.parse(localStorage.getItem('spmb_lembaga') || JSON.stringify({
+      nama: "Pondok Pesantren Al Imam Asy-Syafi'i",
+      alamat: "Tarakan, Kalimantan Utara",
+      tahunAjaran: "2026/2027"
+    }));
+  },
+  set lembaga(v) {
+    localStorage.setItem('spmb_lembaga', JSON.stringify(v));
+  },
+};
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function esc(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normalizeText(value) {
+  return String(value ?? '').toLowerCase().trim();
+}
+
+function buildDataAudit() {
+  const siswa = DB.siswa;
+  const ortu = DB.ortu;
+  const peserta = DB.peserta;
+  const siswaIds = new Set(siswa.map(s => s.id));
+  const siswaDenganOrtu = siswa.filter(s => ortu.some(o => o.siswaId === s.id));
+  const issues = [
+    {
+      title: 'Siswa belum punya wawancara orang tua',
+      count: siswa.filter(s => !ortu.some(o => o.siswaId === s.id)).length,
+      detail: 'Lengkapi data wali agar berkas peserta siap diputuskan.'
+    },
+    {
+      title: 'Siswa belum ada keputusan',
+      count: siswa.filter(s => !s.keputusan || s.keputusan === 'Menunggu').length,
+      detail: 'Peserta ini masih perlu keputusan akhir panitia.'
+    },
+    {
+      title: 'Siswa belum ditempatkan halaqah',
+      count: siswa.filter(s => !s.halaqah).length,
+      detail: 'Penempatan halaqah membantu rekap pembinaan awal.'
+    },
+    {
+      title: 'Data orang tua tidak terhubung ke siswa',
+      count: ortu.filter(o => o.siswaId && !siswaIds.has(o.siswaId)).length,
+      detail: 'Biasanya terjadi setelah import atau hapus data siswa.'
+    },
+    {
+      title: 'Database peserta belum diwawancarai',
+      count: peserta.filter(p => !siswa.some(s => s.pesertaId === p.id)).length,
+      detail: 'Nama sudah ada di database, tetapi form wawancara siswa belum dibuat.'
+    }
+  ];
+  const totalIssues = issues.reduce((sum, item) => sum + item.count, 0);
+  return { issues, totalIssues, paired: siswaDenganOrtu.length };
+}
+
+let spmbRealtimeChannel = null;
+let isLoadingRemote = false;
+
+function usingSupabase() {
+  return !!(supabaseClient && currentUser);
+}
+
+function maybeNumber(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function mapPesertaFromRemote(row) {
+  return {
+    id: row.id,
+    nama: row.nama || '',
+    tingkatan: row.tingkatan || '',
+    status: row.status || 'Belum mulai',
+    createdAt: row.created_at || '',
+    updatedAt: row.updated_at || ''
+  };
+}
+
+function mapSiswaFromRemote(row) {
+  const peserta = row.peserta || {};
+  return {
+    id: row.peserta_id,
+    remoteId: row.id,
+    pesertaId: row.peserta_id,
+    namaLengkap: peserta.nama || '',
+    tingkatan: peserta.tingkatan || '',
+    umur: row.umur || '',
+    tanggalLahir: row.tanggal_lahir || '',
+    asalSekolah: row.asal_sekolah || '',
+    jenisTest: row.jenis_test || '',
+    bacaQuran: row.baca_quran || '',
+    hafalan: row.hafalan || '',
+    detailHafalan: row.detail_hafalan || '',
+    pengarah: row.pengarah || '',
+    pengarahLain: row.pengarah_lain || '',
+    kesiapan: row.kesiapan || '',
+    catatanWawancara: row.catatan_wawancara || '',
+    foto: row.foto_url || '',
+    halaqah: row.halaqah || '',
+    keputusan: row.keputusan || 'Menunggu',
+    namaPetugas: row.nama_petugas || '',
+    tanggalWawancara: row.tanggal_wawancara || '',
+    petugasId: row.petugas_id || '',
+    createdAt: row.created_at || '',
+    updatedAt: row.updated_at || ''
+  };
+}
+
+function mapOrtuFromRemote(row, siswaList = []) {
+  const peserta = row.peserta || {};
+  const siswa = siswaList.find(s => s.pesertaId === row.peserta_id);
+  return {
+    id: row.peserta_id,
+    remoteId: row.id,
+    jenisTest: row.jenis_test || '',
+    siswaId: row.peserta_id,
+    pesertaId: row.peserta_id,
+    namaSiswaManual: siswa ? '' : (peserta.nama || ''),
+    tingkatanManual: siswa ? '' : (peserta.tingkatan || ''),
+    namaOrtu: row.nama_ortu || '',
+    hubunganOrtu: row.hubungan_ortu || '',
+    noHpOrtu: row.no_hp_ortu || '',
+    alamatOrtu: row.alamat_ortu || '',
+    sumberInfo: row.sumber_info || '',
+    sumberInfoLain: row.sumber_info_lain || '',
+    pengarahOrtu: row.pengarah_ortu || '',
+    siapKeputusan: row.siap_keputusan || '',
+    kerjasamaSanksi: row.kerjasama_sanksi || '',
+    catatanPendidikan: row.catatan_pendidikan || '',
+    pembayaranPangkal: row.pembayaran_pangkal || '',
+    spp: row.spp ? String(row.spp) : '',
+    catatanPembiayaan: row.catatan_pembiayaan || '',
+    foto: row.foto_url || '',
+    namaPetugas: row.nama_petugas || '',
+    tanggalWawancara: row.tanggal_wawancara || '',
+    statusPersetujuan: row.status_persetujuan || 'Menunggu',
+    petugasId: row.petugas_id || '',
+    createdAt: row.created_at || '',
+    updatedAt: row.updated_at || ''
+  };
+}
+
+function siswaToRemoteRow(s) {
+  return {
+    peserta_id: s.pesertaId,
+    jenis_test: s.jenisTest || null,
+    umur: maybeNumber(s.umur),
+    tanggal_lahir: s.tanggalLahir || null,
+    asal_sekolah: s.asalSekolah || null,
+    baca_quran: s.bacaQuran || null,
+    hafalan: s.hafalan || null,
+    detail_hafalan: s.detailHafalan || null,
+    pengarah: s.pengarah || null,
+    pengarah_lain: s.pengarahLain || null,
+    kesiapan: s.kesiapan || null,
+    catatan_wawancara: s.catatanWawancara || null,
+    foto_url: s.foto || null,
+    halaqah: s.halaqah || null,
+    keputusan: s.keputusan || 'Menunggu',
+    nama_petugas: currentUser?.email || s.namaPetugas || null,
+    petugas_id: currentUser?.id || null,
+    tanggal_wawancara: s.tanggalWawancara || null
+  };
+}
+
+function ortuToRemoteRow(o) {
+  return {
+    peserta_id: o.siswaId || o.pesertaId,
+    jenis_test: o.jenisTest || null,
+    nama_ortu: o.namaOrtu || '',
+    hubungan_ortu: o.hubunganOrtu || null,
+    no_hp_ortu: o.noHpOrtu || null,
+    alamat_ortu: o.alamatOrtu || null,
+    sumber_info: o.sumberInfo || null,
+    sumber_info_lain: o.sumberInfoLain || null,
+    pengarah_ortu: o.pengarahOrtu || null,
+    siap_keputusan: o.siapKeputusan || null,
+    kerjasama_sanksi: o.kerjasamaSanksi || null,
+    catatan_pendidikan: o.catatanPendidikan || null,
+    pembayaran_pangkal: o.pembayaranPangkal || null,
+    spp: maybeNumber(o.spp),
+    catatan_pembiayaan: o.catatanPembiayaan || null,
+    foto_url: o.foto || null,
+    nama_petugas: currentUser?.email || o.namaPetugas || null,
+    petugas_id: currentUser?.id || null,
+    tanggal_wawancara: o.tanggalWawancara || null,
+    status_persetujuan: o.statusPersetujuan || 'Menunggu'
+  };
+}
+
+async function loadSupabaseData({ rerender = true } = {}) {
+  if (!usingSupabase() || isLoadingRemote) return;
+  isLoadingRemote = true;
+  try {
+    const [pesertaRes, siswaRes, ortuRes] = await Promise.all([
+      supabaseClient.from('peserta').select('*').order('tingkatan').order('nama'),
+      supabaseClient.from('wawancara_santri').select('*, peserta:peserta_id(id,nama,tingkatan)').order('updated_at', { ascending: false }),
+      supabaseClient.from('wawancara_ortu').select('*, peserta:peserta_id(id,nama,tingkatan)').order('updated_at', { ascending: false })
+    ]);
+    if (pesertaRes.error) throw pesertaRes.error;
+    if (siswaRes.error) throw siswaRes.error;
+    if (ortuRes.error) throw ortuRes.error;
+
+    const siswa = (siswaRes.data || []).map(mapSiswaFromRemote);
+    DB.peserta = (pesertaRes.data || []).map(mapPesertaFromRemote);
+    DB.siswa = siswa;
+    DB.ortu = (ortuRes.data || []).map(row => mapOrtuFromRemote(row, siswa));
+
+    if (rerender && currentUser && !['siswa-form', 'ortu-form'].includes(currentPage)) {
+      showPage(currentPage || 'home');
+    }
+  } catch (err) {
+    showToast('Gagal sinkron Supabase: ' + err.message, 3500);
+  } finally {
+    isLoadingRemote = false;
+  }
+}
+
+function startSupabaseRealtime() {
+  if (!usingSupabase() || spmbRealtimeChannel) return;
+  spmbRealtimeChannel = supabaseClient
+    .channel('spmb-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta' }, () => loadSupabaseData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_santri' }, () => loadSupabaseData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_ortu' }, () => loadSupabaseData())
+    .subscribe();
+}
+
+async function stopSupabaseRealtime() {
+  if (supabaseClient && spmbRealtimeChannel) {
+    await supabaseClient.removeChannel(spmbRealtimeChannel);
+  }
+  spmbRealtimeChannel = null;
+}
+
+async function savePesertaRemote(pesertaList) {
+  if (!usingSupabase()) return;
+  const rows = pesertaList.map(p => ({ nama: p.nama, tingkatan: p.tingkatan }));
+  const { error } = await supabaseClient.from('peserta').insert(rows);
+  if (error) throw error;
+  await loadSupabaseData({ rerender: false });
+}
+
+async function deletePesertaRemote(id) {
+  if (!usingSupabase()) return;
+  const { error } = await supabaseClient.from('peserta').delete().eq('id', id);
+  if (error) throw error;
+  await loadSupabaseData({ rerender: false });
+}
+
+async function saveSiswaRemote(siswa) {
+  if (!usingSupabase()) return;
+  const { error } = await supabaseClient
+    .from('wawancara_santri')
+    .upsert(siswaToRemoteRow(siswa), { onConflict: 'peserta_id' });
+  if (error) throw error;
+  await loadSupabaseData({ rerender: false });
+}
+
+async function saveOrtuRemote(ortu) {
+  if (!usingSupabase() || !(ortu.siswaId || ortu.pesertaId)) return;
+  const { error } = await supabaseClient
+    .from('wawancara_ortu')
+    .upsert(ortuToRemoteRow(ortu), { onConflict: 'peserta_id' });
+  if (error) throw error;
+  await loadSupabaseData({ rerender: false });
+}
+
+async function deleteSiswaRemote(id) {
+  if (!usingSupabase()) return;
+  const { error } = await supabaseClient.from('wawancara_santri').delete().eq('peserta_id', id);
+  if (error) throw error;
+}
+
+async function deleteOrtuRemote(id) {
+  if (!usingSupabase()) return;
+  const { error } = await supabaseClient.from('wawancara_ortu').delete().eq('peserta_id', id);
+  if (error) throw error;
+}
+
+// ═══════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════
+
+let _confirmCallback = null;
+
+function showConfirm(title, msg, cb, icon = '🗑️', okLabel = 'Hapus', okClass = 'btn-danger') {
+  _confirmCallback = cb;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmIcon').textContent = icon;
+  document.getElementById('confirmOkBtn').textContent = okLabel;
+  document.getElementById('confirmOkBtn').className = `btn ${okClass}`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  _confirmCallback = null;
+}
+
+function confirmAction() {
+  if (_confirmCallback) _confirmCallback();
+  closeConfirm();
+}
+
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function getTingkatanBadge(t) {
+  if (t === 'MTs Putra') return `<span class="badge badge-mts-pa">MTs Putra</span>`;
+  if (t === 'MTs Putri') return `<span class="badge badge-mts-pi">MTs Putri</span>`;
+  if (t === 'MA') return `<span class="badge badge-ma">MA</span>`;
+  return `<span class="badge">${esc(t || '-')}</span>`;
+}
+
+function getJenisTestBadge(j) {
+  if (j === 'Online') return `<span class="badge badge-online">Online</span>`;
+  if (j === 'Offline') return `<span class="badge badge-offline">Offline</span>`;
+  return `<span class="badge">${esc(j || '-')}</span>`;
+}
+
+function formatRupiah(n) {
+  return 'Rp' + parseInt(n).toLocaleString('id-ID');
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+
+let currentPage = 'home';
+
+function showPage(page) {
+  if (!currentUser) {
+    renderLogin();
+    return;
+  }
+  if (['siswa', 'ortu', 'pengaturan'].includes(page) && !isAdmin()) {
+    showToast('Halaman ini hanya untuk admin.');
+    page = 'home';
+  }
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  updateAuthHeader();
+
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = '';
+
+  if (page === 'home') renderHome();
+  else if (page === 'siswa') renderSiswaList();
+  else if (page === 'siswa-form') renderSiswaForm();
+  else if (page === 'ortu') renderOrtuList();
+  else if (page === 'ortu-form') renderOrtuForm();
+  else if (page === 'rekap') renderRekap();
+  else if (page === 'pengaturan') renderPengaturan();
+}
+
+// ═══════════════════════════════════════════════════
+// HOME PAGE
+// ═══════════════════════════════════════════════════
+
+function renderHome() {
+  updateHeaderInfo();
+  const siswa = DB.siswa;
+  const ortu = DB.ortu;
+  const audit = buildDataAudit();
+  const peserta = DB.peserta;
+  const total = siswa.length;
+  const paired = siswa.filter(s => ortu.find(o => o.siswaId === s.id)).length;
+  const mtspa = siswa.filter(s => s.tingkatan === 'MTs Putra').length;
+  const mtspi = siswa.filter(s => s.tingkatan === 'MTs Putri').length;
+  const ma = siswa.filter(s => s.tingkatan === 'MA').length;
+  const online = siswa.filter(s => s.jenisTest === 'Online').length;
+  const offline = siswa.filter(s => s.jenisTest === 'Offline').length;
+
+  // Pisahkan peserta per tingkatan untuk tampilan database
+  const pMtspa = peserta.filter(p => p.tingkatan === 'MTs Putra');
+  const pMtspi = peserta.filter(p => p.tingkatan === 'MTs Putri');
+  const pMa    = peserta.filter(p => p.tingkatan === 'MA');
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h2><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">home</span> Beranda</h2>
+      <p>Selamat datang di SPMB Al Imam Asy-Syafi'i Tarakan</p>
+    </div>
+
+    <div class="alert alert-info">
+      <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">info</span></span>
+      <span>Data tersimpan di perangkat ini. Jangan hapus cache browser untuk menjaga data tetap aman.</span>
+    </div>
+
+    <!-- STATISTIK -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">${peserta.length}</div>
+        <div class="stat-label">Database Peserta</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${total}</div>
+        <div class="stat-label">Sudah Wawancara</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${ortu.length}</div>
+        <div class="stat-label">Wawancara Ortu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${total - paired}</div>
+        <div class="stat-label">Ortu Belum Dipasang</div>
+      </div>
+    </div>
+
+    <!-- SEBARAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">bar_chart</span> Sebaran Per Tingkatan</div>
+      ${peserta.length === 0 ? '<p class="text-muted text-small">Belum ada database peserta.</p>' : `
+        <div style="margin-bottom:10px">
+          <div class="flex-row flex-between" style="margin-bottom:4px">
+            <span class="text-small">MTs Putra</span>
+            <span class="text-small">${pMtspa.length} siswa · ${mtspa} wawancara</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pMtspa.length?mtspa/pMtspa.length*100:0}%"></div></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div class="flex-row flex-between" style="margin-bottom:4px">
+            <span class="text-small">MTs Putri</span>
+            <span class="text-small">${pMtspi.length} siswi · ${mtspi} wawancara</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pMtspi.length?mtspi/pMtspi.length*100:0}%;background:linear-gradient(90deg,#c2185b,#e91e63)"></div></div>
+        </div>
+        <div>
+          <div class="flex-row flex-between" style="margin-bottom:4px">
+            <span class="text-small">MA</span>
+            <span class="text-small">${pMa.length} siswa/i · ${ma} wawancara</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pMa.length?ma/pMa.length*100:0}%;background:linear-gradient(90deg,#c8a44a,#e8c87a)"></div></div>
+        </div>
+      `}
+    </div>
+
+    <!-- AKSI WAWANCARA -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">mic</span> Tambah Wawancara</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${peserta.length === 0 ? `
+          <div class="alert alert-warning" style="margin:0">
+            <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">warning</span></span>
+            <span>${isAdmin() ? 'Tambahkan database nama peserta di menu <strong>Siswa</strong> terlebih dahulu.' : 'Database peserta belum tersedia. Hubungi admin untuk menambahkan data siswa baru.'}</span>
+          </div>
+        ` : ''}
+        <button class="btn btn-primary btn-full" onclick="showPage('siswa-form')" ${peserta.length===0?'style="opacity:0.5"':''}>
+          <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">school</span> Tambah Wawancara Siswa
+        </button>
+        <button class="btn btn-accent btn-full" onclick="showPage('ortu-form')" ${peserta.length===0?'style="opacity:0.5"':''}>
+          <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">family_restroom</span> Tambah Wawancara Ortu/Wali
+        </button>
+      </div>
+    </div>
+
+
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// DATABASE PESERTA — CRUD
+// ═══════════════════════════════════════════════════
+
+async function tambahPesertaSatu() {
+  if (!requireAdmin('Tambah data siswa baru')) return;
+  const nama = (document.getElementById('inputNamaPeserta').value || '').trim();
+  const tingkatan = document.getElementById('inputTingkatanPeserta').value;
+  if (!nama) { showToast('⚠️ Nama peserta wajib diisi'); return; }
+  if (!tingkatan) { showToast('⚠️ Tingkatan wajib dipilih'); return; }
+
+  // Cek duplikat
+  const existing = DB.peserta.find(p => p.nama.toLowerCase() === nama.toLowerCase() && p.tingkatan === tingkatan);
+  if (existing) { showToast('⚠️ Nama ini sudah ada di database!'); return; }
+
+  if (usingSupabase()) {
+    try {
+      await savePesertaRemote([{ nama, tingkatan }]);
+      showToast(`✅ ${nama} ditambahkan ke database`);
+      renderSiswaList();
+    } catch (err) {
+      showToast('Gagal menyimpan peserta: ' + err.message, 3500);
+    }
+    return;
+  }
+
+  const list = DB.peserta;
+  list.push({ id: genId(), nama, tingkatan, createdAt: new Date().toISOString() });
+  // Urutkan A-Z per tingkatan
+  list.sort((a, b) => a.tingkatan.localeCompare(b.tingkatan) || a.nama.localeCompare(b.nama));
+  DB.peserta = list;
+  showToast(`✅ ${nama} ditambahkan ke database`);
+  renderSiswaList();
+}
+
+function hapusPeserta(id) {
+  if (!requireAdmin('Hapus peserta')) return;
+  showConfirm('Hapus Peserta', 'Hapus nama ini dari database?', async () => {
+    try {
+      if (usingSupabase()) await deletePesertaRemote(id);
+    } catch (err) {
+      showToast('Gagal menghapus peserta: ' + err.message, 3500);
+      return;
+    }
+    DB.peserta = DB.peserta.filter(p => p.id !== id);
+    showToast('✅ Peserta dihapus dari database');
+    renderSiswaList();
+  });
+}
+
+function hapusSemuaPeserta() {
+  if (!requireAdmin('Hapus database peserta')) return;
+  showConfirm(
+    'Hapus Semua Database',
+    `Hapus semua ${DB.peserta.length} nama dari database peserta? Data wawancara tidak ikut terhapus.`,
+    () => {
+      DB.peserta = [];
+      showToast('✅ Database peserta dikosongkan');
+      renderSiswaList();
+    },
+    '🗑️', 'Hapus Semua', 'btn-danger'
+  );
+}
+
+// ── Template Excel untuk import massal ──
+function downloadTemplatePeserta() {
+  if (!requireAdmin('Download template')) return;
+  if (typeof XLSX === 'undefined') { showToast('❌ Library Excel belum termuat.'); return; }
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['Nama Lengkap', 'Tingkatan'],
+    ['Ahmad Fauzi', 'MTs Putra'],
+    ['Siti Aisyah', 'MTs Putri'],
+    ['Muhammad Rizki', 'MA'],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:32},{wch:14}];
+  // Catatan di baris 6
+  XLSX.utils.sheet_add_aoa(ws, [
+    [],
+    ['--- CATATAN ---'],
+    ['Kolom Nama Lengkap: isi nama lengkap peserta'],
+    ['Kolom Tingkatan: isi salah satu dari: MTs Putra / MTs Putri / MA'],
+    ['Hapus baris contoh (baris 2-4) sebelum diimport'],
+  ], { origin: 'A6' });
+  XLSX.utils.book_append_sheet(wb, ws, 'Database Peserta');
+  XLSX.writeFile(wb, 'Template_Database_Peserta_SPMB.xlsx');
+  showToast('✅ Template Excel didownload!');
+}
+
+// ── Import massal dari Excel ──
+function importPesertaExcel(e) {
+  if (!requireAdmin('Import template')) { e.target.value = ''; return; }
+  const file = e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') { showToast('❌ Library Excel belum termuat.'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+      const tingkatanValid = ['MTs Putra', 'MTs Putri', 'MA'];
+      const baru = [];
+      const skip = [];
+
+      // Lewati header (baris pertama), proses baris yang ada nama + tingkatan valid
+      for (let i = 1; i < rows.length; i++) {
+        const nama = (rows[i][0] || '').toString().trim();
+        const tingkatan = (rows[i][1] || '').toString().trim();
+        if (!nama || !tingkatanValid.includes(tingkatan)) {
+          if (nama) skip.push(nama); // ada nama tapi tingkatan salah
+          continue;
+        }
+        // Cek duplikat antar sesama baris baru
+        const dupBaru = baru.find(b => b.nama.toLowerCase() === nama.toLowerCase() && b.tingkatan === tingkatan);
+        if (dupBaru) continue;
+        baru.push({ id: genId(), nama, tingkatan, createdAt: new Date().toISOString() });
+      }
+
+      if (baru.length === 0) {
+        showToast('⚠️ Tidak ada data valid yang ditemukan. Cek format file.');
+        return;
+      }
+
+      const pesan = skip.length > 0
+        ? `${baru.length} data valid ditemukan, ${skip.length} baris dilewati (tingkatan tidak valid). Tambahkan ke database?`
+        : `${baru.length} nama peserta ditemukan. Tambahkan ke database?`;
+
+      showConfirm('Import Peserta dari Excel', pesan, async () => {
+        // Gabung dengan yang sudah ada, hindari duplikat
+        const existing = DB.peserta;
+        let ditambah = 0;
+        const toRemote = [];
+        baru.forEach(b => {
+          const dup = existing.find(e => e.nama.toLowerCase() === b.nama.toLowerCase() && e.tingkatan === b.tingkatan);
+          if (!dup) { existing.push(b); toRemote.push({ nama: b.nama, tingkatan: b.tingkatan }); ditambah++; }
+        });
+        if (usingSupabase() && toRemote.length > 0) {
+          try {
+            await savePesertaRemote(toRemote);
+          } catch (err) {
+            showToast('Gagal import ke Supabase: ' + err.message, 3500);
+            return;
+          }
+        }
+        // Urutkan A-Z
+        existing.sort((a, b) => a.tingkatan.localeCompare(b.tingkatan) || a.nama.localeCompare(b.nama));
+        DB.peserta = existing;
+        showToast(`✅ ${ditambah} peserta ditambahkan${baru.length-ditambah>0?' ('+( baru.length-ditambah)+' duplikat dilewati)':''}!`);
+        renderSiswaList();
+      }, '📥', 'Import', 'btn-primary');
+    } catch(err) {
+      showToast('❌ Gagal membaca file: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+
+// ── Export daftar peserta ke Excel ──
+function exportPesertaExcel() {
+  if (!requireAdmin('Export daftar peserta')) return;
+  if (typeof XLSX === 'undefined') { showToast('❌ Library Excel belum termuat.'); return; }
+  const peserta = DB.peserta;
+  const header = ['No', 'Nama Lengkap', 'Tingkatan'];
+  const rows = peserta.map((p, i) => [i+1, p.nama, p.tingkatan]);
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  ws['!cols'] = [{wch:5},{wch:32},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Database Peserta');
+  XLSX.writeFile(wb, `Database_Peserta_SPMB_${new Date().toISOString().split('T')[0]}.xlsx`);
+  showToast('✅ Daftar peserta di-export ke Excel!');
+}
+
+// ═══════════════════════════════════════════════════
+// SISWA LIST
+// ═══════════════════════════════════════════════════
+
+let siswaFilter = 'Semua';
+let siswaSearch = '';
+
+function renderSiswaList() {
+  updateHeaderInfo();
+  const all = DB.siswa;
+  const ortu = DB.ortu;
+  const peserta = DB.peserta;
+  const filters = ['Semua', 'MTs Putra', 'MTs Putri', 'MA'];
+  const q = normalizeText(siswaSearch);
+  const filtered = (siswaFilter === 'Semua' ? all : all.filter(s => s.tingkatan === siswaFilter))
+    .filter(s => !q || [s.namaLengkap, s.asalSekolah, s.tingkatan, s.jenisTest, s.keputusan, s.namaPetugas].some(v => normalizeText(v).includes(q)));
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <div>
+        <h2><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">school</span> Wawancara Siswa</h2>
+        <p>${all.length} wawancara terdaftar</p>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      ${filters.map(f => `
+        <button class="filter-chip ${siswaFilter===f?'active':''}" onclick="setSiswaFilter('${f}')">${f}</button>
+      `).join('')}
+    </div>
+
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" id="siswaSearchInput" placeholder="Cari nama, sekolah, status, atau petugas..." value="${esc(siswaSearch)}" oninput="setSiswaSearch(this.value)">
+    </div>
+
+    ${isAdmin() ? `
+
+<!-- DATABASE NAMA PESERTA -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">group</span> Database Nama Peserta</div>
+      <p class="text-small text-muted" style="margin-bottom:12px">
+        Daftar nama ini menjadi sumber dropdown di form wawancara. Tambah satu-satu atau import massal via Excel.
+      </p>
+
+      <!-- Form tambah satu-satu -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <input type="text" id="inputNamaPeserta" placeholder="Nama lengkap peserta..." style="flex:1;min-width:140px">
+        <select id="inputTingkatanPeserta" style="width:auto;flex-shrink:0">
+          <option value="">Tingkatan</option>
+          <option value="MTs Putra">MTs Putra</option>
+          <option value="MTs Putri">MTs Putri</option>
+          <option value="MA">MA</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="tambahPesertaSatu()" style="flex-shrink:0"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">add</span> Tambah</button>
+      </div>
+
+      <!-- Import / Export Excel peserta -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-outline btn-sm" onclick="downloadTemplatePeserta()">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">download</span> Template Excel
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importPesertaExcel').click()">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">upload_file</span> Import Excel Massal
+        </button>
+        <input type="file" id="importPesertaExcel" accept=".xlsx,.xls" style="display:none" onchange="importPesertaExcel(event)">
+        ${peserta.length > 0 ? `
+          <button class="btn btn-outline btn-sm" onclick="exportPesertaExcel()">
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">table_view</span> Export Daftar
+          </button>
+          <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="hapusSemuaPeserta()">
+            <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">delete_sweep</span> Hapus Semua
+          </button>
+        ` : ''}
+      </div>
+
+      <!-- Daftar per tingkatan -->
+      ${peserta.length === 0 ? `
+        <div class="empty-state" style="padding:20px">
+          <div class="empty-icon"><span class="material-symbols-outlined" style="font-size:48px;vertical-align:middle;line-height:1;color:#bbcbbb">group_add</span></div>
+          <p>Belum ada data. Tambah satu-satu atau import Excel.</p>
+        </div>
+      ` : `
+        ${['MTs Putra','MTs Putri','MA'].map(t => {
+          const list = peserta.filter(p => p.tingkatan === t);
+          if (list.length === 0) return '';
+          return `
+            <div style="margin-bottom:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                ${getTingkatanBadge(t)}
+                <span class="text-small text-muted">${list.length} peserta</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                ${list.map((p, idx) => `
+                  <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                    <span style="font-size:11px;color:var(--text-light);width:20px;text-align:right;flex-shrink:0">${idx+1}</span>
+                    <span style="flex:1;font-size:13px;font-weight:500">${esc(p.nama)}</span>
+                    <button class="btn-icon danger" style="width:28px;height:28px;font-size:13px" onclick="hapusPeserta('${p.id}')" title="Hapus"><span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1">close</span></button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `}
+    </div>
+    ` : ''}
+
+    <div id="siswa-list">
+      ${filtered.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-icon"><span class="material-symbols-outlined" style="font-size:48px;vertical-align:middle;line-height:1;color:#bbcbbb">school</span></div>
+          <p>Belum ada data wawancara ${siswaFilter !== 'Semua' ? siswaFilter : 'siswa'}.</p>
+          <p class="text-small text-muted mt-2">Tambah wawancara dari halaman Beranda.</p>
+        </div>
+      ` : filtered.map(s => {
+        const hasOrtu = ortu.find(o => o.siswaId === s.id);
+        return `
+          <div class="peserta-item">
+            <div class="peserta-avatar">
+              ${s.foto ? `<img src="${s.foto}" alt="foto">` : '<span class="material-symbols-outlined" style="font-size:22px;vertical-align:middle;line-height:1;color:#6c7b6d">person</span>'}
+            </div>
+            <div class="peserta-info">
+              <div class="peserta-name">${esc(s.namaLengkap || '—')}</div>
+              <div class="peserta-meta">
+                ${getTingkatanBadge(s.tingkatan)}
+                ${getJenisTestBadge(s.jenisTest)}
+                ${hasOrtu ? `<span class="linked-badge">✓ Ortu</span>` : `<span class="unlinked-badge">! Ortu</span>`}
+              </div>
+              <div class="peserta-meta" style="margin-top:2px">
+                <span>${esc(s.asalSekolah || '—')}</span>
+                ${s.halaqah ? `<span>· Halaqah ${esc(s.halaqah)}</span>` : ''}
+              </div>
+            </div>
+            <div class="peserta-actions">
+              ${isAdmin() ? `
+                <button class="btn-icon" onclick="printSiswa('${s.id}')" title="Print/PDF"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">print</span></button>
+                <button class="btn-icon" onclick="editSiswa('${s.id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">edit</span></button>
+                <button class="btn-icon danger" onclick="deleteSiswa('${s.id}')" title="Hapus"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">delete</span></button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setSiswaFilter(f) {
+  siswaFilter = f;
+  renderSiswaList();
+}
+
+function setSiswaSearch(value) {
+  siswaSearch = value;
+  renderSiswaList();
+  const input = document.getElementById('siswaSearchInput');
+  if (input) {
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+}
+
+function deleteSiswa(id) {
+  if (!requireAdmin('Hapus wawancara siswa')) return;
+  showConfirm('Hapus Data Siswa', 'Data ini akan dihapus permanen. Lanjutkan?', async () => {
+    try {
+      if (usingSupabase()) await deleteSiswaRemote(id);
+    } catch (err) {
+      showToast('Gagal menghapus data siswa: ' + err.message, 3500);
+      return;
+    }
+    DB.siswa = DB.siswa.filter(s => s.id !== id);
+    showToast('✅ Data siswa dihapus');
+    renderSiswaList();
+  });
+}
+
+function editSiswa(id) {
+  if (!requireAdmin('Edit wawancara siswa')) return;
+  _editSiswaId = id;
+  showPage('siswa-form');
+}
+
+let _editSiswaId = null;
+let _editOrtuId = null;
+
+// ═══════════════════════════════════════════════════
+// SISWA FORM
+// ═══════════════════════════════════════════════════
+
+function renderSiswaForm() {
+  const isEdit = !!_editSiswaId;
+  const data = isEdit ? DB.siswa.find(s => s.id === _editSiswaId) || {} : {};
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <div class="flex-row">
+        <button class="btn btn-outline btn-sm" onclick="_editSiswaId=null; showPage(isAdmin() ? 'siswa' : 'home')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">arrow_back</span> Kembali</button>
+        <div>
+          <h2>${isEdit ? '✏️ Edit' : '<span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">add_circle</span>'} Wawancara Siswa</h2>
+        </div>
+      </div>
+    </div>
+
+    <p class="required-note"><span>*</span> Wajib diisi</p>
+
+    <!-- PILIH PESERTA DARI DATABASE -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">person_search</span> Pilih Peserta</div>
+
+      ${DB.peserta.length === 0 ? `
+        <div class="alert alert-warning" style="margin-bottom:0">
+          <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">warning</span></span>
+          <span>Database peserta kosong. Tambah nama peserta dulu di Beranda.</span>
+        </div>
+      ` : `
+        <div class="form-group">
+          <label for="pesertaSelect">Nama Peserta <span class="req">*</span></label>
+          <select id="pesertaSelect" onchange="onPesertaSelectChange()">
+            <option value="">-- Pilih nama peserta --</option>
+            ${['MTs Putra','MTs Putri','MA'].map(t => {
+              const list = DB.peserta.filter(p => p.tingkatan === t);
+              if (list.length === 0) return '';
+              return `<optgroup label="${t}">${list.map(p =>
+                `<option value="${esc(p.id)}" data-nama="${esc(p.nama)}" data-tingkatan="${esc(p.tingkatan)}" ${data.pesertaId===p.id||data.namaLengkap===p.nama?'selected':''}>${esc(p.nama)}</option>`
+              ).join('')}</optgroup>`;
+            }).join('')}
+          </select>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Tingkatan</label>
+            <div id="infoTingkatan" style="padding:10px 12px;background:var(--bg-input);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text-muted)">
+              ${data.tingkatan || '— otomatis —'}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Jenis Test <span class="req">*</span></label>
+            <div class="radio-group" style="flex-direction:column;gap:6px">
+              ${['Online','Offline'].map(j => `
+                <div class="radio-btn">
+                  <input type="radio" name="jenisTest" id="jt_${j}" value="${j}" ${data.jenisTest===j?'checked':''}>
+                  <label for="jt_${j}" style="border-radius:var(--radius-sm)">${j==='Online'?'<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1">laptop</span> Online':'<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1">edit_note</span> Offline'}</label>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `}
+    </div>
+
+    <!-- BIODATA TAMBAHAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">badge</span> Biodata Tambahan</div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="umur">Umur <span class="req">*</span></label>
+          <input type="number" id="umur" placeholder="Tahun" min="10" max="25" value="${data.umur||''}">
+        </div>
+        <div class="form-group">
+          <label for="tanggalLahir">Tgl Lahir <span class="hint">(opsional)</span></label>
+          <input type="date" id="tanggalLahir" value="${data.tanggalLahir||''}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="asalSekolah">Asal Sekolah <span class="req">*</span></label>
+        <input type="text" id="asalSekolah" placeholder="Nama sekolah asal" value="${data.asalSekolah||''}">
+      </div>
+    </div>
+
+    <!-- WAWANCARA -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">mic</span> Wawancara Siswa</div>
+
+      <div class="form-group">
+        <label>Kemampuan Membaca Al-Qur'an <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Belum Bisa','Bisa (Tidak Lancar)','Lancar','Sangat Lancar'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="bacaQuran" id="bq_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.bacaQuran===v?'checked':''}>
+              <label for="bq_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Hafalan Al-Qur'an</label>
+        <div class="radio-group">
+          ${['Belum Ada','Juz Amma','1-5 Juz','6-10 Juz','> 10 Juz'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="hafalan" id="hf_${v.replace(/[^a-z0-9]/gi,'_')}" value="${v}" ${data.hafalan===v?'checked':''}>
+              <label for="hf_${v.replace(/[^a-z0-9]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Detail Hafalan <span class="hint">(opsional)</span></label>
+        <input type="text" id="detailHafalan" placeholder="Contoh: Surah Al-Baqarah 1-50" value="${data.detailHafalan||''}">
+      </div>
+
+      <div class="form-group">
+        <label>Yang Mengarahkan Masuk Ponpes <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Orang Tua/Wali','Guru/Ustadz','Teman/Keluarga','Keinginan Sendiri','Lainnya'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="pengarah" id="pa_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.pengarah===v?'checked':''}>
+              <label for="pa_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Keterangan Pengarah <span class="hint">(jika Lainnya)</span></label>
+        <input type="text" id="pengarahLain" placeholder="Sebutkan..." value="${data.pengarahLain||''}">
+      </div>
+
+      <div class="form-group">
+        <label>Kesiapan Mengikuti Kegiatan Pondok <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Sangat Siap','Siap','Ragu-ragu','Tidak Siap'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="kesiapan" id="ks_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.kesiapan===v?'checked':''}>
+              <label for="ks_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Catatan Wawancara <span class="hint">(opsional)</span></label>
+        <textarea id="catatanWawancara" placeholder="Catatan tambahan dari petugas wawancara...">${data.catatanWawancara||''}</textarea>
+      </div>
+    </div>
+
+    <!-- FOTO -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">photo_camera</span> Foto Peserta</div>
+      <img id="previewFoto" class="photo-preview" src="${data.foto||''}" style="${data.foto?'display:block':''}">
+      <div class="photo-area" id="photoArea" ${data.foto?'style="display:none"':''}>
+        <div class="photo-icon"><span class="material-symbols-outlined" style="font-size:40px;vertical-align:middle;line-height:1;color:#6c7b6d">add_a_photo</span></div>
+        <p>Ketuk untuk pilih atau ambil foto</p>
+      </div>
+      <input type="file" id="fotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleFoto(event)">
+      <div class="photo-btns mt-2">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('fotoInput').click()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">upload</span> Upload / Kamera</button>
+        ${data.foto ? `<button class="btn btn-outline btn-sm" onclick="clearFoto()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">delete</span> Hapus Foto</button>` : ''}
+      </div>
+    </div>
+
+    <!-- PENILAIAN & KEPUTUSAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">grading</span> Hasil Penilaian & Keputusan</div>
+
+      <div class="form-group">
+        <label>Penempatan Halaqah <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Halaqah 1','Halaqah 2','Halaqah 3','Belum Ditentukan'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="halaqah" id="hl_${v.replace(' ','_')}" value="${v.replace('Halaqah ','')}" ${data.halaqah===v.replace('Halaqah ','') || (v==='Belum Ditentukan'&&!data.halaqah)?'checked':''}>
+              <label for="hl_${v.replace(' ','_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Keputusan Penerimaan</label>
+        <div class="radio-group">
+          ${['Diterima','Diterima Bersyarat','Ditolak','Menunggu'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="keputusan" id="kp_${v.replace(' ','_')}" value="${v}" ${data.keputusan===v||(!data.keputusan&&v==='Menunggu')?'checked':''}>
+              <label for="kp_${v.replace(' ','_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="namaPetugas">Nama Petugas Wawancara</label>
+        <input type="text" id="namaPetugas" placeholder="Nama petugas" value="${data.namaPetugas||''}">
+      </div>
+
+      <div class="form-group">
+        <label for="tanggalWawancara">Tanggal Wawancara</label>
+        <input type="date" id="tanggalWawancara" value="${data.tanggalWawancara||new Date().toISOString().split('T')[0]}">
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px">
+      <button class="btn btn-primary btn-full" onclick="saveSiswa()">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">save</span> ${isEdit ? 'Simpan Perubahan' : 'Simpan Data Siswa'}
+      </button>
+      <button class="btn btn-outline btn-full" onclick="_editSiswaId=null; showPage(isAdmin() ? 'siswa' : 'home')">Batal</button>
+    </div>
+  `;
+
+  // Attach photo area click
+  document.getElementById('photoArea').addEventListener('click', () => {
+    document.getElementById('fotoInput').click();
+  });
+}
+
+function onPesertaSelectChange() {
+  const sel = document.getElementById('pesertaSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+  const nama = opt.getAttribute('data-nama') || '';
+  const tingkatan = opt.getAttribute('data-tingkatan') || '';
+  const infoEl = document.getElementById('infoTingkatan');
+  if (infoEl) {
+    infoEl.textContent = tingkatan;
+    infoEl.style.color = 'var(--text)';
+    infoEl.style.fontWeight = '600';
+  }
+}
+
+function handleFoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const preview = document.getElementById('previewFoto');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    document.getElementById('photoArea').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFoto() {
+  document.getElementById('previewFoto').style.display = 'none';
+  document.getElementById('previewFoto').src = '';
+  document.getElementById('photoArea').style.display = 'block';
+  document.getElementById('fotoInput').value = '';
+}
+
+function getRadioVal(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+async function saveSiswa() {
+  // Ambil peserta dari dropdown
+  const sel = document.getElementById('pesertaSelect');
+  const pesertaId = sel ? sel.value : '';
+  const opt = sel ? sel.options[sel.selectedIndex] : null;
+  const namaLengkap = opt && opt.value ? (opt.getAttribute('data-nama') || '') : (DB.siswa.find(s=>s.id===_editSiswaId)||{}).namaLengkap || '';
+  const tingkatan   = opt && opt.value ? (opt.getAttribute('data-tingkatan') || '') : (DB.siswa.find(s=>s.id===_editSiswaId)||{}).tingkatan || '';
+
+  const umur = document.getElementById('umur').value.trim();
+  const asalSekolah = document.getElementById('asalSekolah').value.trim();
+  const jenisTest = getRadioVal('jenisTest');
+  const bacaQuran = getRadioVal('bacaQuran');
+  const pengarah = getRadioVal('pengarah');
+  const kesiapan = getRadioVal('kesiapan');
+
+  if (!pesertaId && !namaLengkap) { showToast('⚠️ Pilih nama peserta terlebih dahulu'); return; }
+  if (!namaLengkap) { showToast('⚠️ Pilih nama peserta terlebih dahulu'); return; }
+  if (!tingkatan) { showToast('⚠️ Tingkatan tidak valid, pilih peserta kembali'); return; }
+  if (!umur) { showToast('⚠️ Umur wajib diisi'); return; }
+  if (!asalSekolah) { showToast('⚠️ Asal sekolah wajib diisi'); return; }
+  if (!jenisTest) { showToast('⚠️ Jenis test wajib dipilih'); return; }
+  if (!bacaQuran) { showToast('⚠️ Kemampuan baca Qur\'an wajib dipilih'); return; }
+  if (!pengarah) { showToast('⚠️ Yang mengarahkan wajib dipilih'); return; }
+  if (!kesiapan) { showToast('⚠️ Kesiapan wajib dipilih'); return; }
+
+  // Cek duplikat — jangan wawancara 1 siswa 2x (kecuali mode edit)
+  if (!_editSiswaId) {
+    const dup = DB.siswa.find(s => s.pesertaId === pesertaId && pesertaId);
+    if (dup) { showToast(`⚠️ ${namaLengkap} sudah punya data wawancara!`); return; }
+  }
+
+  const foto = document.getElementById('previewFoto').src;
+  const halaqahRaw = getRadioVal('halaqah');
+
+  const obj = {
+    id: _editSiswaId || (usingSupabase() ? pesertaId : genId()),
+    pesertaId: pesertaId || '',
+    namaLengkap,
+    tingkatan,
+    umur,
+    tanggalLahir: document.getElementById('tanggalLahir').value,
+    asalSekolah,
+    jenisTest,
+    bacaQuran,
+    hafalan: getRadioVal('hafalan'),
+    detailHafalan: document.getElementById('detailHafalan').value,
+    pengarah,
+    pengarahLain: document.getElementById('pengarahLain').value,
+    kesiapan,
+    catatanWawancara: document.getElementById('catatanWawancara').value,
+    foto: foto && foto.startsWith('data:') ? foto : '',
+    halaqah: halaqahRaw === 'Belum Ditentukan' ? '' : halaqahRaw,
+    keputusan: getRadioVal('keputusan'),
+    namaPetugas: document.getElementById('namaPetugas').value,
+    tanggalWawancara: document.getElementById('tanggalWawancara').value,
+    createdAt: _editSiswaId ? (DB.siswa.find(s=>s.id===_editSiswaId)||{}).createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  let list = DB.siswa;
+  if (_editSiswaId) {
+    list = list.map(s => s.id === _editSiswaId ? obj : s);
+  } else {
+    list.push(obj);
+  }
+  try {
+    if (usingSupabase()) await saveSiswaRemote(obj);
+  } catch (err) {
+    showToast('Gagal menyimpan ke Supabase: ' + err.message, 3500);
+    return;
+  }
+  DB.siswa = list;
+  _editSiswaId = null;
+  showToast(`✅ Data wawancara ${namaLengkap} disimpan!`);
+  showPage(isAdmin() ? 'siswa' : 'home');
+}
+
+// ═══════════════════════════════════════════════════
+// ORTU LIST
+// ═══════════════════════════════════════════════════
+
+let ortuFilter = 'Semua';
+let ortuSearch = '';
+
+function renderOrtuList() {
+  updateHeaderInfo();
+  const all = DB.ortu;
+  const siswa = DB.siswa;
+  const filters = ['Semua', 'MTs Putra', 'MTs Putri', 'MA'];
+  const q = normalizeText(ortuSearch);
+  const filteredByTingkatan = ortuFilter === 'Semua' ? all : all.filter(o => {
+    const s = siswa.find(s => s.id === o.siswaId);
+    return s && s.tingkatan === ortuFilter;
+  });
+  const filtered = filteredByTingkatan.filter(o => {
+    const siswaData = siswa.find(s => s.id === o.siswaId);
+    return !q || [o.namaOrtu, o.noHpOrtu, o.hubunganOrtu, o.jenisTest, o.statusPersetujuan, siswaData?.namaLengkap, o.namaSiswaManual].some(v => normalizeText(v).includes(q));
+  });
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <div>
+        <h2><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">family_restroom</span> Wawancara Ortu/Wali</h2>
+        <p>${all.length} wawancara terdaftar</p>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      ${filters.map(f => `
+        <button class="filter-chip ${ortuFilter===f?'active':''}" onclick="setOrtuFilter('${f}')">${f}</button>
+      `).join('')}
+    </div>
+
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" id="ortuSearchInput" placeholder="Cari nama wali, siswa, no HP, atau status..." value="${esc(ortuSearch)}" oninput="setOrtuSearch(this.value)">
+    </div>
+
+    <div id="ortu-list">
+      ${filtered.length === 0 ? `
+        <div class="empty-state">
+          <div class="empty-icon"><span class="material-symbols-outlined" style="font-size:48px;vertical-align:middle;line-height:1;color:#bbcbbb">family_restroom</span></div>
+          <p>Belum ada data wawancara ortu/wali.</p>
+          <p class="text-small text-muted mt-2">Tambah wawancara dari halaman Beranda.</p>
+        </div>
+      ` : filtered.map(o => {
+        const siswaData = siswa.find(s => s.id === o.siswaId);
+        return `
+          <div class="peserta-item">
+            <div class="peserta-avatar">
+              ${o.foto ? `<img src="${o.foto}" alt="foto">` : '<span class="material-symbols-outlined" style="font-size:22px;vertical-align:middle;line-height:1;color:#6c7b6d">family_restroom</span>'}
+            </div>
+            <div class="peserta-info">
+              <div class="peserta-name">${esc(o.namaOrtu || '—')}</div>
+              <div class="peserta-meta">
+                <span style="font-size:11px">Wali dari:</span>
+                <strong style="font-size:12px">${esc(siswaData ? siswaData.namaLengkap : o.namaSiswaManual || '—')}</strong>
+                ${siswaData ? getTingkatanBadge(siswaData.tingkatan) : ''}
+              </div>
+              <div class="peserta-meta" style="margin-top:2px">
+                ${getJenisTestBadge(o.jenisTest)}
+                <span>SPP: ${o.spp ? formatRupiah(o.spp) : '—'}</span>
+              </div>
+            </div>
+            <div class="peserta-actions">
+              ${isAdmin() ? `
+                <button class="btn-icon" onclick="printOrtu('${o.id}')" title="Print/PDF"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">print</span></button>
+                <button class="btn-icon" onclick="editOrtu('${o.id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">edit</span></button>
+                <button class="btn-icon danger" onclick="deleteOrtu('${o.id}')" title="Hapus"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">delete</span></button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setOrtuFilter(f) {
+  ortuFilter = f;
+  renderOrtuList();
+}
+
+function setOrtuSearch(value) {
+  ortuSearch = value;
+  renderOrtuList();
+  const input = document.getElementById('ortuSearchInput');
+  if (input) {
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+}
+
+function deleteOrtu(id) {
+  if (!requireAdmin('Hapus wawancara ortu/wali')) return;
+  showConfirm('Hapus Data Ortu/Wali', 'Data ini akan dihapus permanen. Lanjutkan?', async () => {
+    try {
+      if (usingSupabase()) await deleteOrtuRemote(id);
+    } catch (err) {
+      showToast('Gagal menghapus data ortu: ' + err.message, 3500);
+      return;
+    }
+    DB.ortu = DB.ortu.filter(o => o.id !== id);
+    showToast('✅ Data ortu/wali dihapus');
+    renderOrtuList();
+  });
+}
+
+function editOrtu(id) {
+  if (!requireAdmin('Edit wawancara ortu/wali')) return;
+  _editOrtuId = id;
+  showPage('ortu-form');
+}
+
+// ═══════════════════════════════════════════════════
+// ORTU FORM
+// ═══════════════════════════════════════════════════
+
+function renderOrtuForm() {
+  const isEdit = !!_editOrtuId;
+  const data = isEdit ? DB.ortu.find(o => o.id === _editOrtuId) || {} : {};
+  const siswaBelumPunya = DB.siswa.filter(s => {
+    // Show all if editing, otherwise filter those without ortu (but still show all for flexibility)
+    return true;
+  });
+
+  const sppOptions = [
+    { value: '700000', label: 'Rp 700.000/bulan' },
+    { value: '900000', label: 'Rp 900.000/bulan' },
+    { value: '1000000', label: 'Rp 1.000.000/bulan' },
+  ];
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <div class="flex-row">
+        <button class="btn btn-outline btn-sm" onclick="_editOrtuId=null; showPage(isAdmin() ? 'ortu' : 'home')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">arrow_back</span> Kembali</button>
+        <div>
+          <h2>${isEdit ? '✏️ Edit' : '<span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">add_circle</span>'} Wawancara Ortu/Wali</h2>
+        </div>
+      </div>
+    </div>
+
+    <p class="required-note"><span>*</span> Wajib diisi</p>
+
+    <!-- ISIAN UMUM -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">info</span> Informasi Umum</div>
+
+      <div class="form-group">
+        <label>Jenis Test <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Online','Offline'].map(j => `
+            <div class="radio-btn">
+              <input type="radio" name="jenisTestOrtu" id="jto_${j}" value="${j}" ${data.jenisTest===j?'checked':''}>
+              <label for="jto_${j}">${j === 'Online' ? '<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1">laptop</span> Online' : '<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1">edit_note</span> Offline'}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="siswaSelect">Wali dari Siswa <span class="req">*</span></label>
+        ${DB.peserta.length > 0 ? `
+          <select id="siswaSelect" onchange="onSiswaSelectChange()">
+            <option value="">-- Pilih Nama Siswa --</option>
+            <option value="__manual__" ${data.siswaId===null&&data.namaSiswaManual?'selected':''}>Input Manual (siswa belum terdaftar)</option>
+            ${DB.peserta.map(p => `
+              <option value="${esc(p.id)}" ${data.siswaId===p.id||data.pesertaId===p.id?'selected':''}>${esc(p.nama)} — ${esc(p.tingkatan)}</option>
+            `).join('')}
+          </select>
+        ` : `
+          <select id="siswaSelect" onchange="onSiswaSelectChange()">
+            <option value="">-- Belum ada siswa terdaftar --</option>
+            <option value="__manual__" ${data.namaSiswaManual?'selected':''}>Input Manual</option>
+          </select>
+        `}
+      </div>
+
+      <div id="manualSiswaArea" style="${(data.siswaId===null&&data.namaSiswaManual)||DB.peserta.length===0?'':'display:none'}">
+        <div class="form-group">
+          <label for="namaSiswaManual">Nama Siswa (Manual) <span class="req">*</span></label>
+          <input type="text" id="namaSiswaManual" placeholder="Nama lengkap siswa" value="${data.namaSiswaManual||''}">
+        </div>
+        <div class="form-group">
+          <label for="tingkatanManual">Tingkatan</label>
+          <select id="tingkatanManual">
+            <option value="">-- Pilih --</option>
+            ${['MTs Putra','MTs Putri','MA'].map(t=>`<option value="${t}" ${data.tingkatanManual===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA ORTU -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">family_restroom</span> Data Orang Tua / Wali</div>
+
+      <div class="form-group">
+        <label for="namaOrtu">Nama Orang Tua / Wali <span class="req">*</span></label>
+        <input type="text" id="namaOrtu" placeholder="Nama lengkap ortu/wali" value="${data.namaOrtu||''}">
+      </div>
+
+      <div class="form-group">
+        <label for="hubunganOrtu">Hubungan dengan Siswa <span class="req">*</span></label>
+        <select id="hubunganOrtu">
+          <option value="">-- Pilih --</option>
+          ${['Ayah Kandung','Ibu Kandung','Wali (Paman/Bibi)','Kakek/Nenek','Wali Lainnya'].map(v=>`
+            <option value="${v}" ${data.hubunganOrtu===v?'selected':''}>${v}</option>
+          `).join('')}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="noHpOrtu">No. HP / WA <span class="hint">(opsional)</span></label>
+        <input type="text" id="noHpOrtu" placeholder="08xxxxxxxxxx" value="${data.noHpOrtu||''}">
+      </div>
+
+      <div class="form-group">
+        <label for="alamatOrtu">Alamat <span class="hint">(opsional)</span></label>
+        <textarea id="alamatOrtu" placeholder="Alamat lengkap">${data.alamatOrtu||''}</textarea>
+      </div>
+    </div>
+
+    <!-- WAWANCARA PENDIDIKAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">school</span> Wawancara Sistem Pendidikan</div>
+
+      <div class="form-group">
+        <label>Mengetahui Ponpes Dari <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Media Sosial','Teman/Keluarga','Brosur/Pamflet','Alumni','Guru/Ustadz','Lainnya'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="sumberInfo" id="si_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.sumberInfo===v?'checked':''}>
+              <label for="si_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sumberInfoLain">Keterangan <span class="hint">(jika Lainnya)</span></label>
+        <input type="text" id="sumberInfoLain" placeholder="Sebutkan..." value="${data.sumberInfoLain||''}">
+      </div>
+
+      <div class="form-group">
+        <label>Yang Mengarahkan Anak Masuk Ponpes <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Orang Tua Sendiri','Guru/Ustadz','Keinginan Anak','Keluarga','Lainnya'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="pengarahOrtu" id="po_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.pengarahOrtu===v?'checked':''}>
+              <label for="po_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Siap dengan Keputusan Terkait Pendidikan Ponpes? <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Siap Sepenuhnya','Siap dengan Catatan','Perlu Diskusi Lebih Lanjut'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="siapKeputusan" id="sk_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.siapKeputusan===v?'checked':''}>
+              <label for="sk_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Siap Bekerjasama dalam Sanksi dan Reward? <span class="req">*</span></label>
+        <div class="radio-group">
+          ${['Ya, Sangat Siap','Ya, dengan Syarat Tertentu','Perlu Penjelasan Lebih'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="kerjasamaSanksi" id="ks2_${v.replace(/[^a-z]/gi,'_')}" value="${v}" ${data.kerjasamaSanksi===v?'checked':''}>
+              <label for="ks2_${v.replace(/[^a-z]/gi,'_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="catatanPendidikan">Catatan Wawancara Pendidikan <span class="hint">(opsional)</span></label>
+        <textarea id="catatanPendidikan" placeholder="Catatan tambahan...">${data.catatanPendidikan||''}</textarea>
+      </div>
+    </div>
+
+    <!-- WAWANCARA PEMBIAYAAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">payments</span> Wawancara Administrasi Pembiayaan</div>
+
+      <div class="alert alert-info">
+        <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">info</span></span>
+        <span>Informasikan rincian biaya kepada orang tua/wali sebelum mengisi bagian ini.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Uang Pendaftaran</label>
+        <div style="padding:10px 12px; background:var(--bg-input); border-radius:var(--radius-sm); border:1.5px solid var(--border)">
+          <strong>Rp 150.000</strong> <span class="text-muted text-small">(tetap, tidak dapat diangsur)</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Uang Pangkal</label>
+        <div style="padding:10px 12px; background:var(--bg-input); border-radius:var(--radius-sm); border:1.5px solid var(--border)">
+          <strong>Rp 5.000.000</strong>
+          <div class="text-small text-muted mt-2">· Angsuran 1: <strong>Rp 3.000.000</strong></div>
+          <div class="text-small text-muted">· Angsuran 2: <strong>Rp 2.000.000</strong> (batas: akhir semester 1 kelas 7)</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pilihan Pembayaran Pangkal <span class="req">*</span></label>
+        <div class="radio-group">
+          ${[
+            {v:'Lunas', l:'Lunas (Rp 5.000.000)'},
+            {v:'Angsur', l:'Diangsur (Rp 3jt + Rp 2jt)'}
+          ].map(opt => `
+            <div class="radio-btn">
+              <input type="radio" name="pembayaranPangkal" id="pp_${opt.v}" value="${opt.v}" ${data.pembayaranPangkal===opt.v?'checked':''}>
+              <label for="pp_${opt.v}">${opt.l}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pilihan SPP per Bulan <span class="req">*</span></label>
+        <div class="radio-group">
+          ${sppOptions.map(opt => `
+            <div class="radio-btn">
+              <input type="radio" name="spp" id="spp_${opt.value}" value="${opt.value}" ${data.spp===opt.value?'checked':''}>
+              <label for="spp_${opt.value}">${opt.label}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="catatanPembiayaan">Catatan Pembiayaan <span class="hint">(opsional)</span></label>
+        <textarea id="catatanPembiayaan" placeholder="Kesepakatan atau catatan khusus...">${data.catatanPembiayaan||''}</textarea>
+      </div>
+    </div>
+
+    <!-- FOTO -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">photo_camera</span> Foto Dokumentasi</div>
+      <img id="previewFotoOrtu" class="photo-preview" src="${data.foto||''}" style="${data.foto?'display:block':''}">
+      <div class="photo-area" id="photoAreaOrtu" ${data.foto?'style="display:none"':''}>
+        <div class="photo-icon"><span class="material-symbols-outlined" style="font-size:40px;vertical-align:middle;line-height:1;color:#6c7b6d">add_a_photo</span></div>
+        <p>Ketuk untuk pilih atau ambil foto</p>
+      </div>
+      <input type="file" id="fotoInputOrtu" accept="image/*" capture="environment" style="display:none" onchange="handleFotoOrtu(event)">
+      <div class="photo-btns mt-2">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('fotoInputOrtu').click()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">upload</span> Upload / Kamera</button>
+        ${data.foto ? `<button class="btn btn-outline btn-sm" onclick="clearFotoOrtu()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">delete</span> Hapus Foto</button>` : ''}
+      </div>
+    </div>
+
+    <!-- HASIL & KEPUTUSAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">task_alt</span> Lembar Persetujuan</div>
+
+      <div class="form-group">
+        <label for="namaPetugasOrtu">Nama Petugas Wawancara</label>
+        <input type="text" id="namaPetugasOrtu" placeholder="Nama petugas" value="${data.namaPetugas||''}">
+      </div>
+
+      <div class="form-group">
+        <label for="tanggalWawancaraOrtu">Tanggal Wawancara</label>
+        <input type="date" id="tanggalWawancaraOrtu" value="${data.tanggalWawancara||new Date().toISOString().split('T')[0]}">
+      </div>
+
+      <div class="form-group">
+        <label>Status Persetujuan</label>
+        <div class="radio-group">
+          ${['Setuju','Setuju Bersyarat','Menolak','Menunggu'].map(v => `
+            <div class="radio-btn">
+              <input type="radio" name="statusPersetujuan" id="sp_${v.replace(' ','_')}" value="${v}" ${data.statusPersetujuan===v||(!data.statusPersetujuan&&v==='Menunggu')?'checked':''}>
+              <label for="sp_${v.replace(' ','_')}">${v}</label>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px">
+      <button class="btn btn-primary btn-full" onclick="saveOrtu()">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">save</span> ${isEdit ? 'Simpan Perubahan' : 'Simpan Data Ortu/Wali'}
+      </button>
+      <button class="btn btn-outline btn-full" onclick="_editOrtuId=null; showPage(isAdmin() ? 'ortu' : 'home')">Batal</button>
+    </div>
+  `;
+
+  document.getElementById('photoAreaOrtu').addEventListener('click', () => {
+    document.getElementById('fotoInputOrtu').click();
+  });
+}
+
+function onSiswaSelectChange() {
+  const val = document.getElementById('siswaSelect').value;
+  const manualArea = document.getElementById('manualSiswaArea');
+  if (val === '__manual__' || val === '') {
+    manualArea.style.display = '';
+  } else {
+    manualArea.style.display = 'none';
+  }
+}
+
+function handleFotoOrtu(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const preview = document.getElementById('previewFotoOrtu');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    document.getElementById('photoAreaOrtu').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFotoOrtu() {
+  document.getElementById('previewFotoOrtu').style.display = 'none';
+  document.getElementById('previewFotoOrtu').src = '';
+  document.getElementById('photoAreaOrtu').style.display = 'block';
+  document.getElementById('fotoInputOrtu').value = '';
+}
+
+async function saveOrtu() {
+  const siswaSelect = document.getElementById('siswaSelect').value;
+  const namaOrtu = document.getElementById('namaOrtu').value.trim();
+  const hubunganOrtu = document.getElementById('hubunganOrtu').value;
+  const jenisTest = getRadioVal('jenisTestOrtu');
+  const sumberInfo = getRadioVal('sumberInfo');
+  const pengarahOrtu = getRadioVal('pengarahOrtu');
+  const siapKeputusan = getRadioVal('siapKeputusan');
+  const kerjasamaSanksi = getRadioVal('kerjasamaSanksi');
+  const pembayaranPangkal = getRadioVal('pembayaranPangkal');
+  const spp = getRadioVal('spp');
+
+  if (!jenisTest) { showToast('⚠️ Jenis test wajib dipilih'); return; }
+  if (!namaOrtu) { showToast('⚠️ Nama ortu/wali wajib diisi'); return; }
+  if (!hubunganOrtu) { showToast('⚠️ Hubungan wajib dipilih'); return; }
+  if (!sumberInfo) { showToast('⚠️ Sumber info ponpes wajib dipilih'); return; }
+  if (!pengarahOrtu) { showToast('⚠️ Yang mengarahkan wajib dipilih'); return; }
+  if (!siapKeputusan) { showToast('⚠️ Kesiapan keputusan wajib dipilih'); return; }
+  if (!kerjasamaSanksi) { showToast('⚠️ Kerjasama sanksi/reward wajib dipilih'); return; }
+  if (!pembayaranPangkal) { showToast('⚠️ Pilihan pembayaran pangkal wajib dipilih'); return; }
+  if (!spp) { showToast('⚠️ Pilihan SPP wajib dipilih'); return; }
+
+  let linkedSiswaId = null;
+  let namaSiswaManual = '';
+  let tingkatanManual = '';
+
+  if (siswaSelect && siswaSelect !== '__manual__') {
+    linkedSiswaId = siswaSelect;
+  } else {
+    namaSiswaManual = (document.getElementById('namaSiswaManual')||{}).value || '';
+    tingkatanManual = (document.getElementById('tingkatanManual')||{}).value || '';
+    if (!namaSiswaManual) { showToast('⚠️ Nama siswa manual wajib diisi'); return; }
+  }
+
+  const foto = document.getElementById('previewFotoOrtu').src;
+
+  const obj = {
+    id: _editOrtuId || (usingSupabase() ? linkedSiswaId : genId()),
+    jenisTest,
+    siswaId: linkedSiswaId,
+    namaSiswaManual,
+    tingkatanManual,
+    namaOrtu,
+    hubunganOrtu,
+    noHpOrtu: document.getElementById('noHpOrtu').value,
+    alamatOrtu: document.getElementById('alamatOrtu').value,
+    sumberInfo,
+    sumberInfoLain: document.getElementById('sumberInfoLain').value,
+    pengarahOrtu,
+    siapKeputusan,
+    kerjasamaSanksi,
+    catatanPendidikan: document.getElementById('catatanPendidikan').value,
+    pembayaranPangkal,
+    spp,
+    catatanPembiayaan: document.getElementById('catatanPembiayaan').value,
+    foto: foto && foto.startsWith('data:') ? foto : '',
+    namaPetugas: document.getElementById('namaPetugasOrtu').value,
+    tanggalWawancara: document.getElementById('tanggalWawancaraOrtu').value,
+    statusPersetujuan: getRadioVal('statusPersetujuan'),
+    createdAt: _editOrtuId ? (DB.ortu.find(o=>o.id===_editOrtuId)||{}).createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  let list = DB.ortu;
+  if (_editOrtuId) {
+    list = list.map(o => o.id === _editOrtuId ? obj : o);
+  } else {
+    list.push(obj);
+  }
+  try {
+    if (usingSupabase()) await saveOrtuRemote(obj);
+  } catch (err) {
+    showToast('Gagal menyimpan ke Supabase: ' + err.message, 3500);
+    return;
+  }
+  DB.ortu = list;
+  _editOrtuId = null;
+  showToast(`✅ Data ortu/wali disimpan!`);
+  showPage(isAdmin() ? 'ortu' : 'home');
+}
+
+// ═══════════════════════════════════════════════════
+// REKAP PAGE
+// ═══════════════════════════════════════════════════
+
+function renderRekap() {
+  updateHeaderInfo();
+  const siswa = DB.siswa;
+  const ortu = DB.ortu;
+
+  const byTingkatan = {
+    'MTs Putra': siswa.filter(s=>s.tingkatan==='MTs Putra'),
+    'MTs Putri': siswa.filter(s=>s.tingkatan==='MTs Putri'),
+    'MA': siswa.filter(s=>s.tingkatan==='MA'),
+  };
+
+  const halaqahCount = {1:0, 2:0, 3:0};
+  siswa.forEach(s => { if(s.halaqah) halaqahCount[s.halaqah] = (halaqahCount[s.halaqah]||0)+1; });
+
+  const keputusanCount = {};
+  siswa.forEach(s => { keputusanCount[s.keputusan||'Menunggu'] = (keputusanCount[s.keputusan||'Menunggu']||0)+1; });
+
+  const sppCount = {};
+  ortu.forEach(o => { if(o.spp) sppCount[o.spp] = (sppCount[o.spp]||0)+1; });
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h2><span class="material-symbols-outlined" style="font-size:20px;vertical-align:middle;line-height:1">analytics</span> Rekapitulasi SPMB</h2>
+      <p>Data per ${new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</p>
+    </div>
+
+    ${isAdmin() ? `
+      <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="printRekap()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">print</span> Print Rekap</button>
+        <button class="btn btn-outline btn-sm" onclick="exportExcel()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">table_view</span> Export Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="exportAllData()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">cloud_download</span> Backup JSON</button>
+      </div>
+    ` : ''}
+
+    <!-- RINGKASAN -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">${siswa.length}</div>
+        <div class="stat-label">Total Peserta</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${ortu.length}</div>
+        <div class="stat-label">Wawancara Ortu</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">fact_check</span> Audit Kelengkapan Data</div>
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:12px">
+        <div class="stat-card" style="padding:14px">
+          <div class="stat-number" style="font-size:28px;color:${audit.totalIssues ? 'var(--warning)' : 'var(--success)'}">${audit.totalIssues}</div>
+          <div class="stat-label">Catatan Audit</div>
+        </div>
+        <div class="stat-card" style="padding:14px">
+          <div class="stat-number" style="font-size:28px">${audit.paired}</div>
+          <div class="stat-label">Siswa Lengkap Ortu</div>
+        </div>
+      </div>
+      <div class="audit-list">
+        ${audit.issues.map(item => `
+          <div class="audit-item ${item.count === 0 ? 'ok' : item.count > 10 ? 'danger' : ''}">
+            <span class="audit-dot"></span>
+            <div>
+              <strong>${esc(item.title)}: ${item.count}</strong>
+              <span>${esc(item.detail)}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- PER TINGKATAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">layers</span> Per Tingkatan</div>
+      <div style="overflow-x:auto">
+        <table class="rekap-table">
+          <thead><tr><th>Tingkatan</th><th>Jumlah</th><th>Online</th><th>Offline</th><th>Sudah Ortu</th></tr></thead>
+          <tbody>
+            ${Object.entries(byTingkatan).map(([t, list]) => {
+              const hasOrtu = list.filter(s => ortu.find(o=>o.siswaId===s.id)).length;
+              return `<tr>
+                <td>${getTingkatanBadge(t)}</td>
+                <td><strong>${list.length}</strong></td>
+                <td>${list.filter(s=>s.jenisTest==='Online').length}</td>
+                <td>${list.filter(s=>s.jenisTest==='Offline').length}</td>
+                <td>${hasOrtu} / ${list.length}</td>
+              </tr>`;
+            }).join('')}
+            <tr style="font-weight:700; background:var(--bg)">
+              <td>TOTAL</td>
+              <td>${siswa.length}</td>
+              <td>${siswa.filter(s=>s.jenisTest==='Online').length}</td>
+              <td>${siswa.filter(s=>s.jenisTest==='Offline').length}</td>
+              <td>${siswa.filter(s=>ortu.find(o=>o.siswaId===s.id)).length} / ${siswa.length}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HALAQAH -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">menu_book</span> Penempatan Halaqah</div>
+      <div class="grid-2">
+        ${[1,2,3].map(h => `
+          <div style="text-align:center; padding:12px; background:var(--bg); border-radius:var(--radius-sm); border:1px solid var(--border)">
+            <div style="font-size:22px; font-weight:700; color:var(--primary)">${halaqahCount[h]||0}</div>
+            <div style="font-size:11px; color:var(--text-muted)">Halaqah ${h}</div>
+          </div>
+        `).join('')}
+        <div style="text-align:center; padding:12px; background:var(--warning-light); border-radius:var(--radius-sm); border:1px solid rgba(217,119,6,0.2)">
+          <div style="font-size:22px; font-weight:700; color:var(--warning)">${siswa.filter(s=>!s.halaqah).length}</div>
+          <div style="font-size:11px; color:var(--warning)">Belum Ditentukan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEPUTUSAN -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">task_alt</span> Status Keputusan</div>
+      <div style="overflow-x:auto">
+        <table class="rekap-table">
+          <thead><tr><th>Status</th><th>Jumlah</th></tr></thead>
+          <tbody>
+            ${['Diterima','Diterima Bersyarat','Menunggu','Ditolak'].map(k => `
+              <tr><td>${k}</td><td><strong>${keputusanCount[k]||0}</strong></td></tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SPP -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">payments</span> Pilihan SPP</div>
+      <div style="overflow-x:auto">
+        <table class="rekap-table">
+          <thead><tr><th>Nominal SPP</th><th>Jumlah</th></tr></thead>
+          <tbody>
+            ${[700000,900000,1000000].map(s => `
+              <tr><td>${formatRupiah(s)}/bulan</td><td><strong>${sppCount[String(s)]||0}</strong></td></tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DAFTAR LENGKAP -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">list_alt</span> Daftar Seluruh Peserta</div>
+      ${siswa.length === 0 ? '<p class="text-muted text-small">Belum ada data.</p>' : `
+        <div style="overflow-x:auto">
+          <table class="rekap-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama</th>
+                <th>Tingkatan</th>
+                <th>Halaqah</th>
+                <th>Status</th>
+                <th>Ortu</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${siswa.map((s, i) => {
+                const hasOrtu = ortu.find(o=>o.siswaId===s.id);
+                return `<tr>
+                  <td>${i+1}</td>
+                  <td><strong>${esc(s.namaLengkap)}</strong><br><span style="font-size:10px;color:var(--text-muted)">${esc(s.asalSekolah||'')}</span></td>
+                  <td>${getTingkatanBadge(s.tingkatan)}</td>
+                  <td>${s.halaqah ? `<strong>${s.halaqah}</strong>` : '<span style="color:var(--text-light)">—</span>'}</td>
+                  <td style="font-size:11px">${esc(s.keputusan||'Menunggu')}</td>
+                  <td style="text-align:center">${hasOrtu ? '✅' : '—'}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// PRINT / PDF
+// ═══════════════════════════════════════════════════
+
+function formatTanggal(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function printSiswa(id) {
+  if (!requireAdmin('Print wawancara siswa')) return;
+  const s = DB.siswa.find(x => x.id === id);
+  if (!s) return;
+
+  const printArea = document.getElementById('print-area');
+  printArea.innerHTML = `
+    <div style="max-width:700px; margin:0 auto; padding:20px; font-family:'Plus Jakarta Sans',sans-serif; color:#111; font-size:12px">
+      <div style="text-align:center; border-bottom:2px solid #1a5c3a; padding-bottom:12px; margin-bottom:16px">
+        <div style="font-size:22px; margin-bottom:4px">🕌</div>
+        <h2 style="font-family:'Amiri',serif; font-size:18px; color:#1a5c3a; margin:0">PONDOK PESANTREN AL IMAM ASY-SYAFI'I TARAKAN</h2>
+        <p style="font-size:11px; color:#555; margin:4px 0 0">LEMBAR HASIL WAWANCARA SISWA — SPMB 2026/2027</p>
+      </div>
+
+      ${s.foto ? `<img src="${s.foto}" style="width:100px;height:120px;object-fit:cover;border:1px solid #ccc;float:right;margin:0 0 8px 12px;border-radius:4px">` : ''}
+
+      <div style="margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">A. Informasi Umum</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Tingkatan</div><div style="font-weight:600">${s.tingkatan}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Jenis Test</div><div style="font-weight:600">${s.jenisTest}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Tanggal Wawancara</div><div style="font-weight:600">${formatTanggal(s.tanggalWawancara)}</div></div>
+      </div>
+
+      <div style="clear:both; margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">B. Biodata Siswa</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Nama Lengkap</div><div style="font-weight:600">${s.namaLengkap}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Umur</div><div>${s.umur} Tahun</div></div>
+        ${s.tanggalLahir ? `<div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Tanggal Lahir</div><div>${formatTanggal(s.tanggalLahir)}</div></div>` : ''}
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Asal Sekolah</div><div>${s.asalSekolah}</div></div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">C. Hasil Wawancara</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Bacaan Al-Qur'an</div><div style="font-weight:600">${s.bacaQuran||'—'}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Hafalan Al-Qur'an</div><div>${s.hafalan||'Belum Ada'}${s.detailHafalan?` (${s.detailHafalan})`:''}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Diarahkan Oleh</div><div>${s.pengarah||'—'}${s.pengarahLain?` — ${s.pengarahLain}`:''}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Kesiapan Kegiatan</div><div style="font-weight:600">${s.kesiapan||'—'}</div></div>
+        ${s.catatanWawancara ? `<div style="margin-top:6px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:11px;color:#444"><strong>Catatan:</strong> ${s.catatanWawancara}</div>` : ''}
+      </div>
+
+      <div style="margin-bottom:20px; padding:12px; background:#f0f9f4; border:2px solid #1a5c3a; border-radius:6px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;margin-bottom:10px">D. Hasil Penilaian & Keputusan</h3>
+        <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+          <div>
+            <div style="font-size:11px;color:#555;margin-bottom:4px">Penempatan Halaqah</div>
+            <div style="display:inline-block;padding:6px 20px;border:2px solid #1a5c3a;border-radius:4px;font-size:18px;font-weight:700;color:#1a5c3a">
+              ${s.halaqah ? `Halaqah ${s.halaqah}` : 'Belum Ditentukan'}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#555;margin-bottom:4px">Keputusan</div>
+            <div style="font-size:15px;font-weight:700;color:${s.keputusan==='Diterima'?'#1a5c3a':s.keputusan==='Ditolak'?'#c0392b':'#d97706'}">${s.keputusan||'Menunggu'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:40px;margin-top:30px">
+        <div style="flex:1;text-align:center">
+          <div style="border-bottom:1px solid #333;margin-top:50px;margin-bottom:4px"></div>
+          <div style="font-size:11px;font-weight:600">${s.namaPetugas||'Petugas Wawancara'}</div>
+          <div style="font-size:10px;color:#666">Petugas Wawancara</div>
+        </div>
+        <div style="flex:1;text-align:center">
+          <div style="border-bottom:1px solid #333;margin-top:50px;margin-bottom:4px"></div>
+          <div style="font-size:11px;font-weight:600">${s.namaLengkap}</div>
+          <div style="font-size:10px;color:#666">Peserta / Siswa</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;text-align:center;font-size:10px;color:#999">Dicetak: ${new Date().toLocaleString('id-ID')} · SPMB Al Imam Asy-Syafi'i Tarakan 2026/2027</div>
+    </div>
+  `;
+
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(() => { printArea.style.display = 'none'; }, 1000);
+}
+
+function printOrtu(id) {
+  if (!requireAdmin('Print wawancara ortu/wali')) return;
+  const o = DB.ortu.find(x => x.id === id);
+  if (!o) return;
+  const siswa = o.siswaId ? DB.siswa.find(s => s.id === o.siswaId) : null;
+  const namaSiswa = siswa ? siswa.namaLengkap : (o.namaSiswaManual || '—');
+  const tingkatan = siswa ? siswa.tingkatan : (o.tingkatanManual || '—');
+
+  const printArea = document.getElementById('print-area');
+  printArea.innerHTML = `
+    <div style="max-width:700px;margin:0 auto;padding:20px;font-family:'Plus Jakarta Sans',sans-serif;color:#111;font-size:12px">
+      <div style="text-align:center;border-bottom:2px solid #1a5c3a;padding-bottom:12px;margin-bottom:16px">
+        <div style="font-size:22px;margin-bottom:4px">🕌</div>
+        <h2 style="font-family:'Amiri',serif;font-size:18px;color:#1a5c3a;margin:0">PONDOK PESANTREN AL IMAM ASY-SYAFI'I TARAKAN</h2>
+        <p style="font-size:11px;color:#555;margin:4px 0 0">LEMBAR PERSETUJUAN ORANG TUA / WALI SANTRI — SPMB 2026/2027</p>
+      </div>
+
+      ${o.foto ? `<img src="${o.foto}" style="width:100px;height:120px;object-fit:cover;border:1px solid #ccc;float:right;margin:0 0 8px 12px;border-radius:4px">` : ''}
+
+      <div style="margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">A. Data Siswa</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Nama Siswa</div><div style="font-weight:600">${namaSiswa}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Tingkatan</div><div>${tingkatan}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Jenis Test</div><div>${o.jenisTest}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Tanggal Wawancara</div><div>${formatTanggal(o.tanggalWawancara)}</div></div>
+      </div>
+
+      <div style="clear:both;margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">B. Data Orang Tua / Wali</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Nama Ortu/Wali</div><div style="font-weight:600">${o.namaOrtu}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Hubungan</div><div>${o.hubunganOrtu||'—'}</div></div>
+        ${o.noHpOrtu ? `<div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">No. HP/WA</div><div>${o.noHpOrtu}</div></div>` : ''}
+        ${o.alamatOrtu ? `<div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Alamat</div><div>${o.alamatOrtu}</div></div>` : ''}
+      </div>
+
+      <div style="margin-bottom:12px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1a5c3a;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px">C. Hasil Wawancara Pendidikan</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Mengetahui Ponpes Dari</div><div>${o.sumberInfo||'—'}${o.sumberInfoLain?` — ${o.sumberInfoLain}`:''}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Diarahkan Oleh</div><div>${o.pengarahOrtu||'—'}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Siap Keputusan Ponpes</div><div style="font-weight:600">${o.siapKeputusan||'—'}</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Kerjasama Sanksi/Reward</div><div style="font-weight:600">${o.kerjasamaSanksi||'—'}</div></div>
+        ${o.catatanPendidikan ? `<div style="margin-top:6px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:11px"><strong>Catatan:</strong> ${o.catatanPendidikan}</div>` : ''}
+      </div>
+
+      <div style="margin-bottom:16px;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px">
+        <h3 style="font-size:12px;font-weight:700;text-transform:uppercase;color:#d97706;margin-bottom:8px">D. Kesepakatan Pembiayaan</h3>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Uang Pendaftaran</div><div style="font-weight:600">Rp 150.000</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">Uang Pangkal</div><div style="font-weight:600">Rp 5.000.000 (${o.pembayaranPangkal==='Lunas'?'Dibayar Lunas':'Diangsur: Rp 3jt + Rp 2jt'})</div></div>
+        <div style="display:flex;margin-bottom:4px"><div style="width:180px;color:#555">SPP per Bulan</div><div style="font-weight:600">${o.spp ? formatRupiah(o.spp) : '—'}</div></div>
+        ${o.catatanPembiayaan ? `<div style="margin-top:6px;font-size:11px"><strong>Catatan:</strong> ${o.catatanPembiayaan}</div>` : ''}
+      </div>
+
+      <div style="padding:12px;background:#f0f9f4;border:2px solid #1a5c3a;border-radius:6px;margin-bottom:20px;text-align:center">
+        <div style="font-size:11px;color:#555;margin-bottom:4px">Status Persetujuan</div>
+        <div style="font-size:16px;font-weight:700;color:${o.statusPersetujuan==='Setuju'?'#1a5c3a':o.statusPersetujuan==='Menolak'?'#c0392b':'#d97706'}">${o.statusPersetujuan||'Menunggu'}</div>
+      </div>
+
+      <div style="display:flex;gap:40px;margin-top:30px">
+        <div style="flex:1;text-align:center">
+          <div style="border-bottom:1px solid #333;margin-top:50px;margin-bottom:4px"></div>
+          <div style="font-size:11px;font-weight:600">${o.namaPetugas||'Petugas Wawancara'}</div>
+          <div style="font-size:10px;color:#666">Petugas Wawancara</div>
+        </div>
+        <div style="flex:1;text-align:center">
+          <div style="border-bottom:1px solid #333;margin-top:50px;margin-bottom:4px"></div>
+          <div style="font-size:11px;font-weight:600">${o.namaOrtu}</div>
+          <div style="font-size:10px;color:#666">Orang Tua / Wali Santri</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;text-align:center;font-size:10px;color:#999">Dicetak: ${new Date().toLocaleString('id-ID')} · SPMB Al Imam Asy-Syafi'i Tarakan 2026/2027</div>
+    </div>
+  `;
+
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(() => { printArea.style.display = 'none'; }, 1000);
+}
+
+function printRekap() {
+  if (!requireAdmin('Print rekap')) return;
+  const siswa = DB.siswa;
+  const ortu = DB.ortu;
+  const printArea = document.getElementById('print-area');
+
+  printArea.innerHTML = `
+    <div style="max-width:700px;margin:0 auto;padding:20px;font-family:'Plus Jakarta Sans',sans-serif;color:#111;font-size:12px">
+      <div style="text-align:center;border-bottom:2px solid #1a5c3a;padding-bottom:12px;margin-bottom:16px">
+        <h2 style="font-family:'Amiri',serif;font-size:18px;color:#1a5c3a;margin:0">PONDOK PESANTREN AL IMAM ASY-SYAFI'I TARAKAN</h2>
+        <p style="font-size:11px;color:#555;margin:4px 0 0">REKAPITULASI SPMB 2026/2027 · Dicetak: ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px">
+        <thead>
+          <tr style="background:#1a5c3a;color:white">
+            <th style="padding:6px 8px;text-align:left">#</th>
+            <th style="padding:6px 8px;text-align:left">Nama Siswa</th>
+            <th style="padding:6px 8px;text-align:left">Tingkatan</th>
+            <th style="padding:6px 8px;text-align:left">Asal Sekolah</th>
+            <th style="padding:6px 8px;text-align:center">Halaqah</th>
+            <th style="padding:6px 8px;text-align:center">Keputusan</th>
+            <th style="padding:6px 8px;text-align:center">SPP</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${siswa.map((s, i) => {
+            const ortuData = ortu.find(o=>o.siswaId===s.id);
+            return `<tr style="border-bottom:1px solid #eee">
+              <td style="padding:5px 8px">${i+1}</td>
+              <td style="padding:5px 8px;font-weight:500">${s.namaLengkap}</td>
+              <td style="padding:5px 8px">${s.tingkatan}</td>
+              <td style="padding:5px 8px">${s.asalSekolah||'—'}</td>
+              <td style="padding:5px 8px;text-align:center">${s.halaqah||'—'}</td>
+              <td style="padding:5px 8px;text-align:center">${s.keputusan||'Menunggu'}</td>
+              <td style="padding:5px 8px;text-align:center">${ortuData&&ortuData.spp?formatRupiah(ortuData.spp):'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      <div style="font-size:11px;color:#555">Total: ${siswa.length} peserta · ${ortu.length} wawancara ortu/wali</div>
+    </div>
+  `;
+
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(() => { printArea.style.display = 'none'; }, 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// BACKUP / RESTORE — JSON
+// ═══════════════════════════════════════════════════
+
+function exportAllData() {
+  if (!requireAdmin('Backup JSON')) return;
+  const data = {
+    version: '1.1',
+    exportedAt: new Date().toISOString(),
+    institution: 'Pondok Pesantren Al Imam Asy-Syafi\'i Tarakan',
+    tahunAjaran: '2026/2027',
+    lembaga: DB.lembaga,
+    logo: DB.logo,
+    peserta: DB.peserta,
+    siswa: DB.siswa,
+    ortu: DB.ortu
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `SPMB_AlImam_Backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ Backup JSON berhasil di-download!');
+}
+
+function importData(e) {
+  if (!requireAdmin('Restore JSON')) { e.target.value = ''; return; }
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.siswa || !data.ortu) { showToast('❌ Format JSON tidak valid!'); return; }
+      const jmlPeserta = (data.peserta||[]).length;
+      showConfirm(
+        'Restore dari JSON',
+        `File berisi ${jmlPeserta} database peserta, ${data.siswa.length} data wawancara siswa, dan ${data.ortu.length} data ortu. Data saat ini akan ditimpa. Lanjutkan?`,
+        () => {
+          if (data.peserta) DB.peserta = data.peserta;
+          if (data.lembaga) DB.lembaga = data.lembaga;
+          if (typeof data.logo === 'string') DB.logo = data.logo;
+          DB.siswa = data.siswa;
+          DB.ortu = data.ortu;
+          showToast(`✅ Berhasil restore: ${jmlPeserta} peserta, ${data.siswa.length} siswa, ${data.ortu.length} ortu!`);
+          showPage('home');
+        },
+        '📥', 'Restore', 'btn-primary'
+      );
+    } catch(err) {
+      showToast('❌ File JSON tidak valid!');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ═══════════════════════════════════════════════════
+// EXPORT EXCEL
+// ═══════════════════════════════════════════════════
+
+function exportExcel() {
+  if (!requireAdmin('Export Excel')) return;
+  if (typeof XLSX === 'undefined') {
+    showToast('❌ Library Excel belum termuat. Pastikan ada koneksi internet.'); return;
+  }
+  const siswa = DB.siswa;
+  const ortu = DB.ortu;
+  const audit = buildDataAudit();
+
+  // ── Sheet 1: Data Siswa ──
+  const headerSiswa = [
+    'No','ID','Tingkatan','Jenis Test','Nama Lengkap','Umur','Tanggal Lahir',
+    'Asal Sekolah','Baca Al-Quran','Hafalan','Detail Hafalan',
+    'Yang Mengarahkan','Ket. Pengarah','Kesiapan','Catatan Wawancara',
+    'Halaqah','Keputusan','Nama Petugas','Tanggal Wawancara',
+    'Dibuat','Diperbarui'
+  ];
+  const rowsSiswa = siswa.map((s, i) => [
+    i+1, s.id, s.tingkatan, s.jenisTest, s.namaLengkap, s.umur,
+    s.tanggalLahir||'', s.asalSekolah, s.bacaQuran||'', s.hafalan||'',
+    s.detailHafalan||'', s.pengarah||'', s.pengarahLain||'',
+    s.kesiapan||'', s.catatanWawancara||'',
+    s.halaqah ? `Halaqah ${s.halaqah}` : 'Belum Ditentukan',
+    s.keputusan||'Menunggu', s.namaPetugas||'', s.tanggalWawancara||'',
+    s.createdAt ? s.createdAt.split('T')[0] : '',
+    s.updatedAt ? s.updatedAt.split('T')[0] : ''
+  ]);
+
+  // ── Sheet 2: Data Ortu/Wali ──
+  const headerOrtu = [
+    'No','ID','Jenis Test','Nama Siswa (Linked)','Tingkatan Siswa',
+    'Nama Ortu/Wali','Hubungan','No. HP/WA','Alamat',
+    'Mengetahui Ponpes Dari','Ket. Sumber Info',
+    'Yang Mengarahkan Anak','Siap Keputusan Ponpes','Kerjasama Sanksi/Reward',
+    'Catatan Wawancara Pendidikan',
+    'Pembayaran Pangkal','SPP per Bulan','Catatan Pembiayaan',
+    'Status Persetujuan','Nama Petugas','Tanggal Wawancara',
+    'Dibuat','Diperbarui'
+  ];
+  const rowsOrtu = ortu.map((o, i) => {
+    const siswaData = o.siswaId ? siswa.find(s => s.id === o.siswaId) : null;
+    const namaSiswa = siswaData ? siswaData.namaLengkap : (o.namaSiswaManual || '—');
+    const tingkatanSiswa = siswaData ? siswaData.tingkatan : (o.tingkatanManual || '—');
+    return [
+      i+1, o.id, o.jenisTest, namaSiswa, tingkatanSiswa,
+      o.namaOrtu, o.hubunganOrtu||'', o.noHpOrtu||'', o.alamatOrtu||'',
+      o.sumberInfo||'', o.sumberInfoLain||'',
+      o.pengarahOrtu||'', o.siapKeputusan||'', o.kerjasamaSanksi||'',
+      o.catatanPendidikan||'',
+      o.pembayaranPangkal||'',
+      o.spp ? formatRupiah(o.spp) : '',
+      o.catatanPembiayaan||'',
+      o.statusPersetujuan||'Menunggu', o.namaPetugas||'', o.tanggalWawancara||'',
+      o.createdAt ? o.createdAt.split('T')[0] : '',
+      o.updatedAt ? o.updatedAt.split('T')[0] : ''
+    ];
+  });
+
+  // ── Sheet 3: Rekap Ringkasan ──
+  const today = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+  const mtspa = siswa.filter(s=>s.tingkatan==='MTs Putra').length;
+  const mtspi = siswa.filter(s=>s.tingkatan==='MTs Putri').length;
+  const ma = siswa.filter(s=>s.tingkatan==='MA').length;
+  const rowsRekap = [
+    ['REKAPITULASI SPMB AL IMAM ASY-SYAFI\'I TARAKAN 2026/2027'],
+    [`Dicetak: ${today}`],
+    [],
+    ['RINGKASAN UMUM', ''],
+    ['Total Peserta', siswa.length],
+    ['Wawancara Ortu/Wali', ortu.length],
+    ['Sudah Berpasangan', siswa.filter(s=>ortu.find(o=>o.siswaId===s.id)).length],
+    ['Catatan Audit Kelengkapan', audit.totalIssues],
+    [],
+    ['AUDIT KELENGKAPAN DATA', ''],
+    ...audit.issues.map(item => [item.title, item.count]),
+    [],
+    ['SEBARAN TINGKATAN', ''],
+    ['MTs Putra', mtspa],
+    ['MTs Putri', mtspi],
+    ['MA', ma],
+    [],
+    ['PENEMPATAN HALAQAH', ''],
+    ['Halaqah 1', siswa.filter(s=>s.halaqah==='1').length],
+    ['Halaqah 2', siswa.filter(s=>s.halaqah==='2').length],
+    ['Halaqah 3', siswa.filter(s=>s.halaqah==='3').length],
+    ['Belum Ditentukan', siswa.filter(s=>!s.halaqah).length],
+    [],
+    ['STATUS KEPUTUSAN', ''],
+    ['Diterima', siswa.filter(s=>s.keputusan==='Diterima').length],
+    ['Diterima Bersyarat', siswa.filter(s=>s.keputusan==='Diterima Bersyarat').length],
+    ['Menunggu', siswa.filter(s=>!s.keputusan||s.keputusan==='Menunggu').length],
+    ['Ditolak', siswa.filter(s=>s.keputusan==='Ditolak').length],
+    [],
+    ['PILIHAN SPP', ''],
+    ['Rp 700.000/bulan', ortu.filter(o=>o.spp==='700000').length],
+    ['Rp 900.000/bulan', ortu.filter(o=>o.spp==='900000').length],
+    ['Rp 1.000.000/bulan', ortu.filter(o=>o.spp==='1000000').length],
+  ];
+
+  // ── Build Workbook ──
+  const wb = XLSX.utils.book_new();
+
+  const wsSiswa = XLSX.utils.aoa_to_sheet([headerSiswa, ...rowsSiswa]);
+  // Style header row (set column widths)
+  wsSiswa['!cols'] = [
+    {wch:4},{wch:14},{wch:10},{wch:10},{wch:28},{wch:6},{wch:12},
+    {wch:22},{wch:20},{wch:14},{wch:18},{wch:20},{wch:16},{wch:16},
+    {wch:24},{wch:14},{wch:16},{wch:18},{wch:16},{wch:12},{wch:12}
+  ];
+  XLSX.utils.book_append_sheet(wb, wsSiswa, 'Data Siswa');
+
+  const wsOrtu = XLSX.utils.aoa_to_sheet([headerOrtu, ...rowsOrtu]);
+  wsOrtu['!cols'] = [
+    {wch:4},{wch:14},{wch:10},{wch:28},{wch:12},
+    {wch:24},{wch:16},{wch:14},{wch:24},
+    {wch:20},{wch:16},{wch:20},{wch:22},{wch:24},
+    {wch:26},{wch:18},{wch:16},{wch:24},
+    {wch:16},{wch:18},{wch:16},{wch:12},{wch:12}
+  ];
+  XLSX.utils.book_append_sheet(wb, wsOrtu, 'Data Ortu-Wali');
+
+  const wsRekap = XLSX.utils.aoa_to_sheet(rowsRekap);
+  wsRekap['!cols'] = [{wch:28},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsRekap, 'Rekap Ringkasan');
+
+  const filename = `SPMB_AlImam_${new Date().toISOString().split('T')[0]}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showToast(`✅ File Excel berhasil di-download!`);
+}
+
+// ═══════════════════════════════════════════════════
+// IMPORT EXCEL
+// ═══════════════════════════════════════════════════
+
+function importExcel(e) {
+  if (!requireAdmin('Import Excel')) { e.target.value = ''; return; }
+  const file = e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') {
+    showToast('❌ Library Excel belum termuat. Pastikan ada koneksi internet.'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+
+      // Cari sheet siswa dan ortu
+      const sheetNameSiswa = wb.SheetNames.find(n => n.toLowerCase().includes('siswa'));
+      const sheetNameOrtu = wb.SheetNames.find(n => n.toLowerCase().includes('ortu'));
+
+      if (!sheetNameSiswa || !sheetNameOrtu) {
+        showToast('❌ Sheet "Data Siswa" atau "Data Ortu-Wali" tidak ditemukan!');
+        return;
+      }
+
+      const rowsSiswa = XLSX.utils.sheet_to_json(wb.Sheets[sheetNameSiswa], { header: 1 });
+      const rowsOrtu  = XLSX.utils.sheet_to_json(wb.Sheets[sheetNameOrtu],  { header: 1 });
+
+      // Lewati baris header (baris pertama)
+      const dataSiswa = rowsSiswa.slice(1).filter(r => r[4]); // kolom 4 = Nama Lengkap
+      const dataOrtu  = rowsOrtu.slice(1).filter(r => r[5]);  // kolom 5 = Nama Ortu
+
+      if (dataSiswa.length === 0 && dataOrtu.length === 0) {
+        showToast('⚠️ Tidak ada data yang bisa diimport dari file ini.'); return;
+      }
+
+      // Map baris siswa ke objek — sesuaikan index kolom dengan headerSiswa
+      const siswaImport = dataSiswa.map(r => ({
+        id: r[1] ? String(r[1]) : genId(),
+        tingkatan: r[2]||'',
+        jenisTest: r[3]||'',
+        namaLengkap: r[4]||'',
+        umur: r[5]||'',
+        tanggalLahir: r[6]||'',
+        asalSekolah: r[7]||'',
+        bacaQuran: r[8]||'',
+        hafalan: r[9]||'',
+        detailHafalan: r[10]||'',
+        pengarah: r[11]||'',
+        pengarahLain: r[12]||'',
+        kesiapan: r[13]||'',
+        catatanWawancara: r[14]||'',
+        halaqah: r[15] ? String(r[15]).replace('Halaqah ','') : '',
+        keputusan: r[16]||'',
+        namaPetugas: r[17]||'',
+        tanggalWawancara: r[18]||'',
+        foto: '',
+        createdAt: r[19] ? new Date(r[19]).toISOString() : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }));
+
+      // Map baris ortu ke objek
+      const ortuImport = dataOrtu.map(r => {
+        // cari siswaId dari nama siswa yang cocok
+        const namaSiswaCari = r[3]||'';
+        const siswaMatch = siswaImport.find(s => s.namaLengkap === namaSiswaCari);
+        return {
+          id: r[1] ? String(r[1]) : genId(),
+          jenisTest: r[2]||'',
+          siswaId: siswaMatch ? siswaMatch.id : null,
+          namaSiswaManual: siswaMatch ? '' : namaSiswaCari,
+          tingkatanManual: siswaMatch ? '' : (r[4]||''),
+          namaOrtu: r[5]||'',
+          hubunganOrtu: r[6]||'',
+          noHpOrtu: r[7]||'',
+          alamatOrtu: r[8]||'',
+          sumberInfo: r[9]||'',
+          sumberInfoLain: r[10]||'',
+          pengarahOrtu: r[11]||'',
+          siapKeputusan: r[12]||'',
+          kerjasamaSanksi: r[13]||'',
+          catatanPendidikan: r[14]||'',
+          pembayaranPangkal: r[15]||'',
+          spp: r[16] ? String(r[16]).replace(/[^0-9]/g,'') : '',
+          catatanPembiayaan: r[17]||'',
+          statusPersetujuan: r[18]||'',
+          namaPetugas: r[19]||'',
+          tanggalWawancara: r[20]||'',
+          foto: '',
+          createdAt: r[21] ? new Date(r[21]).toISOString() : new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      showConfirm(
+        'Import dari Excel',
+        `File berisi ${siswaImport.length} data siswa dan ${ortuImport.length} data ortu/wali. Data saat ini akan ditimpa. Lanjutkan?`,
+        () => {
+          DB.siswa = siswaImport;
+          DB.ortu = ortuImport;
+          showToast(`✅ Berhasil import ${siswaImport.length} siswa, ${ortuImport.length} ortu! (Foto tidak diimport)`);
+          showPage('home');
+        },
+        '📊', 'Import', 'btn-primary'
+      );
+    } catch(err) {
+      showToast('❌ Gagal membaca file Excel: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+
+
+// ═══════════════════════════════════════════════════
+// PENGATURAN PAGE
+// ═══════════════════════════════════════════════════
+
+function renderPengaturan() {
+  if (!requireAdmin('Pengaturan')) { showPage('home'); return; }
+  updateHeaderInfo();
+  const l = DB.lembaga;
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-header">
+      <h2><span class="material-symbols-outlined" style="font-size:22px;vertical-align:middle">settings</span> Pengaturan</h2>
+      <p>Konfigurasi data lembaga dan pengelolaan data</p>
+    </div>
+
+    <!-- DATA LEMBAGA -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">domain</span> Data Lembaga</div>
+      <p class="text-small text-muted" style="margin-bottom:14px">
+        Informasi ini tampil di header aplikasi dan pada setiap dokumen hasil cetak.
+      </p>
+
+      <!-- Upload Logo -->
+      <div class="form-group">
+        <label>Logo Lembaga</label>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
+          <div id="logoPreviewBox" style="width:64px;height:64px;border-radius:999px;background:#f1eee5;border:2px solid #bbcbbb;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0">
+            ${DB.logo ? `<img src="${DB.logo}" style="width:100%;height:100%;object-fit:cover">` : '🕌'}
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('inputLogoFile').click()">
+                <span class="material-symbols-outlined" style="font-size:15px">upload</span> Upload Logo
+              </button>
+              ${DB.logo ? `<button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="hapusLogo()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">delete</span> Hapus</button>` : ''}
+            </div>
+            <p class="text-small text-muted" style="margin-top:6px">Format: JPG/PNG/WebP. Disarankan ukuran persegi (1:1).</p>
+          </div>
+        </div>
+        <input type="file" id="inputLogoFile" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+      </div>
+
+      <hr class="divider">
+
+      <div class="form-group">
+        <label for="settNamaLembaga">Nama Lembaga</label>
+        <input type="text" id="settNamaLembaga" placeholder="Nama pondok pesantren / madrasah" value="${l.nama}">
+      </div>
+
+      <div class="form-group">
+        <label for="settAlamat">Alamat Lembaga</label>
+        <textarea id="settAlamat" placeholder="Alamat lengkap lembaga" style="min-height:70px">${l.alamat}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="settTahunAjaran">Tahun Ajaran</label>
+        <input type="text" id="settTahunAjaran" placeholder="Contoh: 2026/2027" value="${l.tahunAjaran}">
+        <p class="text-small text-muted" style="margin-top:5px"><span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;line-height:1;color:#006d37">bolt</span> Perubahan langsung memperbarui badge di header.</p>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="saveLembaga()" style="margin-top:4px">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">save</span> Simpan Data Lembaga
+      </button>
+    </div>
+
+    <!-- BACKUP & RESTORE -->
+    <div class="card">
+      <div class="card-title"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1">cloud_sync</span> Backup & Restore</div>
+      <div class="grid-2" style="gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="exportExcel()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">table_view</span> Export Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importExcelFilePgtr').click()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">upload_file</span> Import Excel</button>
+        <button class="btn btn-outline btn-sm" onclick="exportAllData()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">cloud_download</span> Backup JSON</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFilePgtr').click()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">cloud_upload</span> Restore JSON</button>
+      </div>
+      <div class="alert alert-warning" style="margin-top:10px;margin-bottom:0">
+        <span><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit;flex-shrink:0">warning</span></span>
+        <span style="font-size:11px">Excel <strong>tidak menyimpan foto</strong>. Gunakan Backup JSON untuk arsip lengkap termasuk foto.</span>
+      </div>
+      <input type="file" id="importFilePgtr"      accept=".json"      style="display:none" onchange="importData(event)">
+      <input type="file" id="importExcelFilePgtr" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
+    </div>
+
+    <!-- RESET DATA -->
+    <div class="card" style="border-color:rgba(186,26,26,0.2)">
+      <div class="card-title" style="color:var(--danger)"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;line-height:1;color:inherit">dangerous</span> Zona Berbahaya</div>
+      <p class="text-small text-muted" style="margin-bottom:12px">Tindakan di bawah ini tidak dapat dibatalkan.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="resetSemuaData()">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;line-height:1">delete_sweep</span> Hapus Semua Data Wawancara & Peserta
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function uploadLogo(e) {
+  if (!requireAdmin('Upload logo')) { e.target.value = ''; return; }
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('⚠️ File harus berupa gambar!'); return; }
+  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Ukuran file maksimal 2MB!'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    DB.logo = ev.target.result;
+    updateHeaderInfo();
+    showToast('✅ Logo berhasil diupload!');
+    renderPengaturan();
+  };
+  reader.readAsDataURL(file);
+}
+
+function hapusLogo() {
+  if (!requireAdmin('Hapus logo')) return;
+  showConfirm('Hapus Logo', 'Hapus logo dan kembali ke ikon default?', () => {
+    DB.logo = '';
+    updateHeaderInfo();
+    showToast('✅ Logo dihapus');
+    renderPengaturan();
+  }, '🗑️', 'Hapus', 'btn-danger');
+}
+
+function saveLembaga() {
+  if (!requireAdmin('Simpan data lembaga')) return;
+  const nama        = (document.getElementById('settNamaLembaga').value || '').trim();
+  const alamat      = (document.getElementById('settAlamat').value || '').trim();
+  const tahunAjaran = (document.getElementById('settTahunAjaran').value || '').trim();
+
+  if (!nama)        { showToast('⚠️ Nama lembaga wajib diisi'); return; }
+  if (!tahunAjaran) { showToast('⚠️ Tahun ajaran wajib diisi'); return; }
+
+  DB.lembaga = { nama, alamat, tahunAjaran };
+  updateHeaderInfo();
+  showToast('✅ Data lembaga berhasil disimpan!');
+}
+
+function resetSemuaData() {
+  if (!requireAdmin('Reset semua data')) return;
+  showConfirm(
+    'Hapus Semua Data',
+    'Ini akan menghapus semua data wawancara siswa, wawancara ortu/wali, dan database nama peserta secara permanen. Data lembaga tidak ikut terhapus. Lanjutkan?',
+    () => {
+      DB.siswa    = [];
+      DB.ortu     = [];
+      DB.peserta  = [];
+      showToast('✅ Semua data berhasil dihapus');
+      showPage('home');
+    },
+    '🗑️', 'Hapus Semua', 'btn-danger'
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+
+initAuth();
+
+
+
+</script>
+</body>
+</html>
