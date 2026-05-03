@@ -1111,6 +1111,55 @@ async function deleteOrtuRemote(id) {
   if (error) throw error;
 }
 
+// ── Bulk remote helpers (untuk import massal & reset) ──────────────────────
+
+async function upsertPesertaBulkRemote(pesertaList) {
+  if (!usingSupabase() || !pesertaList.length) return;
+  const rows = pesertaList.map(p => ({ nama: p.nama, tingkatan: p.tingkatan }));
+  const { error } = await supabaseClient.from('peserta').upsert(rows, { onConflict: 'nama,tingkatan' });
+  if (error) throw error;
+}
+
+async function upsertSiswaBulkRemote(siswaList) {
+  if (!usingSupabase() || !siswaList.length) return;
+  const rows = siswaList.filter(s => s.pesertaId).map(siswaToRemoteRow);
+  if (!rows.length) return;
+  const { error } = await supabaseClient
+    .from('wawancara_santri')
+    .upsert(rows, { onConflict: 'peserta_id' });
+  if (error) throw error;
+}
+
+async function upsertOrtuBulkRemote(ortuList) {
+  if (!usingSupabase() || !ortuList.length) return;
+  const rows = ortuList.filter(o => o.siswaId || o.pesertaId).map(ortuToRemoteRow);
+  if (!rows.length) return;
+  const { error } = await supabaseClient
+    .from('wawancara_ortu')
+    .upsert(rows, { onConflict: 'peserta_id' });
+  if (error) throw error;
+}
+
+async function deleteAllRemote() {
+  if (!usingSupabase()) return;
+  // Hapus semua record wawancara + peserta
+  const [r1, r2, r3] = await Promise.all([
+    supabaseClient.from('wawancara_santri').delete().gte('created_at', '1970-01-01'),
+    supabaseClient.from('wawancara_ortu').delete().gte('created_at', '1970-01-01'),
+    supabaseClient.from('peserta').delete().gte('created_at', '1970-01-01'),
+  ]);
+  if (r1.error) throw r1.error;
+  if (r2.error) throw r2.error;
+  if (r3.error) throw r3.error;
+}
+
+async function deleteAllPesertaRemote() {
+  if (!usingSupabase()) return;
+  const { error } = await supabaseClient.from('peserta').delete().gte('created_at', '1970-01-01');
+  if (error) throw error;
+}
+
+
 // ═══════════════════════════════════════════════════
 // UI HELPERS
 // ═══════════════════════════════════════════════════
@@ -1354,10 +1403,17 @@ function hapusSemuaPeserta() {
   showConfirm(
     'Hapus Semua Database',
     `Hapus semua ${DB.peserta.length} nama dari database peserta? Data wawancara tidak ikut terhapus.`,
-    () => {
+    async () => {
+      try {
+        if (usingSupabase()) await deleteAllPesertaRemote();
+      } catch (err) {
+        showToast('Gagal hapus peserta di Supabase: ' + err.message, 3500);
+        return;
+      }
       DB.peserta = [];
       showToast('✅ Database peserta dikosongkan');
-      renderSiswaList();
+      if (usingSupabase()) await loadSupabaseData();
+      else renderSiswaList();
     },
     '🗑️', 'Hapus Semua', 'btn-danger'
   );
@@ -2955,7 +3011,19 @@ function importData(e) {
       showConfirm(
         'Restore dari JSON',
         `File berisi ${jmlPeserta} database peserta, ${data.siswa.length} data wawancara siswa, dan ${data.ortu.length} data ortu. Data saat ini akan ditimpa. Lanjutkan?`,
-        () => {
+        async () => {
+          if (usingSupabase()) {
+            showToast('⏳ Menyimpan ke Supabase...', 2000);
+            try {
+              if (data.peserta && data.peserta.length) await upsertPesertaBulkRemote(data.peserta);
+              if (data.siswa && data.siswa.length) await upsertSiswaBulkRemote(data.siswa);
+              if (data.ortu && data.ortu.length) await upsertOrtuBulkRemote(data.ortu);
+              await loadSupabaseData({ rerender: false });
+            } catch (err) {
+              showToast('Gagal restore ke Supabase: ' + err.message, 4000);
+              return;
+            }
+          }
           if (data.peserta) DB.peserta = data.peserta;
           if (data.lembaga) DB.lembaga = data.lembaga;
           if (typeof data.logo === 'string') DB.logo = data.logo;
@@ -3205,7 +3273,18 @@ function importExcel(e) {
       showConfirm(
         'Import dari Excel',
         `File berisi ${siswaImport.length} data siswa dan ${ortuImport.length} data ortu/wali. Data saat ini akan ditimpa. Lanjutkan?`,
-        () => {
+        async () => {
+          if (usingSupabase()) {
+            showToast('⏳ Menyimpan ke Supabase...', 2000);
+            try {
+              if (siswaImport.length) await upsertSiswaBulkRemote(siswaImport);
+              if (ortuImport.length) await upsertOrtuBulkRemote(ortuImport);
+              await loadSupabaseData({ rerender: false });
+            } catch (err) {
+              showToast('Gagal import ke Supabase: ' + err.message, 4000);
+              return;
+            }
+          }
           DB.siswa = siswaImport;
           DB.ortu = ortuImport;
           showToast(`✅ Berhasil import ${siswaImport.length} siswa, ${ortuImport.length} ortu! (Foto tidak diimport)`);
@@ -3361,7 +3440,13 @@ function resetSemuaData() {
   showConfirm(
     'Hapus Semua Data',
     'Ini akan menghapus semua data wawancara siswa, wawancara ortu/wali, dan database nama peserta secara permanen. Data lembaga tidak ikut terhapus. Lanjutkan?',
-    () => {
+    async () => {
+      try {
+        if (usingSupabase()) await deleteAllRemote();
+      } catch (err) {
+        showToast('Gagal hapus data di Supabase: ' + err.message, 3500);
+        return;
+      }
       DB.siswa    = [];
       DB.ortu     = [];
       DB.peserta  = [];
