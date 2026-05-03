@@ -617,6 +617,7 @@ function updateAuthHeader() {
   const settingsNav = document.getElementById('nav-pengaturan');
   const siswaNav = document.getElementById('nav-siswa');
   const ortuNav = document.getElementById('nav-ortu');
+  const rekapNav = document.getElementById('nav-rekap');
   if (!box || !emailEl || !roleEl) return;
 
   if (!currentUser) {
@@ -630,6 +631,8 @@ function updateAuthHeader() {
   if (siswaNav) siswaNav.style.display = isAdmin() ? '' : 'none';
   if (ortuNav) ortuNav.style.display = isAdmin() ? '' : 'none';
   if (settingsNav) settingsNav.style.display = isAdmin() ? '' : 'none';
+  // Rekap bisa diakses semua akun (admin & petugas)
+  if (rekapNav) rekapNav.style.display = '';
 }
 
 function setAuthShell(isLoggedIn) {
@@ -678,6 +681,91 @@ function renderLogin(message = '') {
   `;
 }
 
+// ═══════════════════════════════════════════════════
+// MIGRASI DATA LOKAL → SUPABASE
+// ═══════════════════════════════════════════════════
+
+// Cek apakah ada data di localStorage yang belum pernah dimigrasi
+async function migrasiDataLokalKeSupabase() {
+  const KEY_MIGRATED = 'spmb_migrated_to_supabase';
+  if (localStorage.getItem(KEY_MIGRATED)) return; // sudah pernah migrasi
+
+  const localPeserta = JSON.parse(localStorage.getItem('spmb_peserta') || '[]');
+  const localSiswa   = JSON.parse(localStorage.getItem('spmb_siswa')   || '[]');
+  const localOrtu    = JSON.parse(localStorage.getItem('spmb_ortu')    || '[]');
+
+  const adaData = localPeserta.length || localSiswa.length || localOrtu.length;
+  if (!adaData) {
+    localStorage.setItem(KEY_MIGRATED, '1');
+    return;
+  }
+
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  showToast(`⏳ Ditemukan ${localPeserta.length} peserta, ${localSiswa.length} siswa lokal — migrasi ke Supabase...`, 5000);
+
+  try {
+    // Step 1: Insert peserta dulu (hasilkan UUID dari Supabase)
+    let pesertaIdMap = {}; // localId → UUID dari Supabase
+    if (localPeserta.length) {
+      // Insert satu per satu agar dapat UUID baru
+      for (const p of localPeserta) {
+        const { data, error } = await supabaseClient
+          .from('peserta')
+          .upsert({ nama: p.nama, tingkatan: p.tingkatan }, { onConflict: 'nama,tingkatan' })
+          .select('id,nama,tingkatan')
+          .single();
+        if (!error && data) pesertaIdMap[p.id] = data.id;
+      }
+    }
+
+    // Kalau ada peserta yang belum dimapping, fetch dari Supabase berdasarkan nama+tingkatan
+    const { data: allPeserta } = await supabaseClient.from('peserta').select('id,nama,tingkatan');
+    if (allPeserta) {
+      for (const p of localPeserta) {
+        if (!pesertaIdMap[p.id]) {
+          const found = allPeserta.find(r => r.nama === p.nama && r.tingkatan === p.tingkatan);
+          if (found) pesertaIdMap[p.id] = found.id;
+        }
+      }
+    }
+
+    // Step 2: Upsert siswa — ganti localId pesertaId dengan UUID dari Supabase
+    const siswaValid = localSiswa.map(s => {
+      const mappedId = pesertaIdMap[s.pesertaId] || pesertaIdMap[s.id];
+      return { ...s, pesertaId: mappedId || s.pesertaId };
+    }).filter(s => s.pesertaId && uuidRe.test(s.pesertaId));
+
+    if (siswaValid.length) await upsertSiswaBulkRemote(siswaValid);
+
+    // Step 3: Upsert ortu — ganti siswaId dengan UUID
+    const ortuValid = localOrtu.map(o => {
+      const mappedId = pesertaIdMap[o.siswaId] || pesertaIdMap[o.pesertaId] || pesertaIdMap[o.id];
+      return { ...o, siswaId: mappedId || o.siswaId, pesertaId: mappedId || o.pesertaId };
+    }).filter(o => {
+      const id = o.siswaId || o.pesertaId;
+      return id && uuidRe.test(id);
+    });
+
+    if (ortuValid.length) await upsertOrtuBulkRemote(ortuValid);
+
+    // Step 4: Tandai selesai & bersihkan localStorage
+    localStorage.setItem(KEY_MIGRATED, '1');
+    localStorage.removeItem('spmb_peserta');
+    localStorage.removeItem('spmb_siswa');
+    localStorage.removeItem('spmb_ortu');
+
+    const gagal = localSiswa.length - siswaValid.length;
+    const msg = gagal > 0
+      ? `✅ Migrasi selesai (${siswaValid.length} siswa, ${ortuValid.length} ortu). ${gagal} data siswa tidak dapat dimigrasi karena tidak terhubung ke peserta.`
+      : `✅ Migrasi selesai: ${localPeserta.length} peserta, ${siswaValid.length} siswa, ${ortuValid.length} ortu berhasil dikirim ke Supabase!`;
+    showToast(msg, 6000);
+
+  } catch (err) {
+    showToast('⚠️ Migrasi gagal: ' + err.message + ' — data lokal tetap aman, coba refresh.', 5000);
+    console.error('Migrasi error:', err);
+  }
+}
+
 async function login() {
   if (!supabaseClient) {
     renderLogin('Konfigurasi Supabase belum diisi.');
@@ -707,6 +795,9 @@ async function login() {
   updateAuthHeader();
   await loadSupabaseData({ rerender: false });
   startSupabaseRealtime();
+  // Migrasi data lokal ke Supabase jika ada (hanya sekali)
+  await migrasiDataLokalKeSupabase();
+  await loadSupabaseData({ rerender: false }); // reload setelah migrasi
   showToast(`Login sebagai ${isAdmin() ? 'admin' : 'petugas'}`);
   showPage('home');
 }
@@ -750,6 +841,9 @@ async function initAuth() {
     updateAuthHeader();
     await loadSupabaseData({ rerender: false });
     startSupabaseRealtime();
+    // Migrasi data lokal ke Supabase jika ada (hanya sekali)
+    await migrasiDataLokalKeSupabase();
+    await loadSupabaseData({ rerender: false }); // reload setelah migrasi
     showPage('home');
   } else {
     renderLogin();
@@ -1046,41 +1140,75 @@ function ortuToRemoteRow(o) {
   };
 }
 
+let _realtimeDebounceTimer = null;
+
 async function loadSupabaseData({ rerender = true } = {}) {
   if (!usingSupabase() || isLoadingRemote) return;
   isLoadingRemote = true;
   try {
+    // Query peserta & wawancara secara terpisah (tanpa join berat di Supabase)
+    // Nama peserta diambil dari tabel peserta lalu di-map di sisi client
     const [pesertaRes, siswaRes, ortuRes] = await Promise.all([
-      supabaseClient.from('peserta').select('*').order('tingkatan').order('nama'),
-      supabaseClient.from('wawancara_santri').select('*, peserta:peserta_id(id,nama,tingkatan)').order('updated_at', { ascending: false }),
-      supabaseClient.from('wawancara_ortu').select('*, peserta:peserta_id(id,nama,tingkatan)').order('updated_at', { ascending: false })
+      supabaseClient.from('peserta').select('id,nama,tingkatan,created_at,updated_at').order('tingkatan').order('nama'),
+      supabaseClient.from('wawancara_santri').select('*').order('updated_at', { ascending: false }),
+      supabaseClient.from('wawancara_ortu').select('*').order('updated_at', { ascending: false })
     ]);
     if (pesertaRes.error) throw pesertaRes.error;
     if (siswaRes.error) throw siswaRes.error;
     if (ortuRes.error) throw ortuRes.error;
 
-    const siswa = (siswaRes.data || []).map(mapSiswaFromRemote);
-    DB.peserta = (pesertaRes.data || []).map(mapPesertaFromRemote);
+    // Build peserta lookup map: id → {nama, tingkatan}
+    const pesertaList = (pesertaRes.data || []).map(mapPesertaFromRemote);
+    const pesertaMap = {};
+    pesertaList.forEach(p => { pesertaMap[p.id] = p; });
+
+    // Map siswa dengan inject nama/tingkatan dari pesertaMap (bukan join SQL)
+    const siswa = (siswaRes.data || []).map(row => {
+      const p = pesertaMap[row.peserta_id] || {};
+      return mapSiswaFromRemote({ ...row, peserta: { id: p.id, nama: p.nama, tingkatan: p.tingkatan } });
+    });
+
+    // Map ortu dengan inject nama dari pesertaMap
+    const ortu = (ortuRes.data || []).map(row => {
+      const p = pesertaMap[row.peserta_id] || {};
+      return mapOrtuFromRemote({ ...row, peserta: { id: p.id, nama: p.nama, tingkatan: p.tingkatan } }, siswa);
+    });
+
+    DB.peserta = pesertaList;
     DB.siswa = siswa;
-    DB.ortu = (ortuRes.data || []).map(row => mapOrtuFromRemote(row, siswa));
+    DB.ortu = ortu;
 
     if (rerender && currentUser && !['siswa-form', 'ortu-form'].includes(currentPage)) {
       showPage(currentPage || 'home');
     }
   } catch (err) {
-    showToast('Gagal sinkron Supabase: ' + err.message, 3500);
+    const msg = err.message || '';
+    // Suppress: timeout, network glitch, aborted — tidak perlu toast
+    const isMinor = msg.includes('timeout') || msg.includes('aborted') ||
+                    msg.includes('network') || msg.includes('fetch') ||
+                    msg.includes('canceling');
+    if (!isMinor) {
+      showToast('Gagal sinkron Supabase: ' + msg, 3500);
+    }
+    console.error('loadSupabaseData error:', err);
   } finally {
     isLoadingRemote = false;
   }
+}
+
+function _debouncedRealtimeLoad() {
+  // Batasi reload realtime max 1x per 3 detik agar tidak spam query ke Supabase
+  clearTimeout(_realtimeDebounceTimer);
+  _realtimeDebounceTimer = setTimeout(() => loadSupabaseData(), 3000);
 }
 
 function startSupabaseRealtime() {
   if (!usingSupabase() || spmbRealtimeChannel) return;
   spmbRealtimeChannel = supabaseClient
     .channel('spmb-live')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta' }, () => loadSupabaseData())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_santri' }, () => loadSupabaseData())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_ortu' }, () => loadSupabaseData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'peserta' }, _debouncedRealtimeLoad)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_santri' }, _debouncedRealtimeLoad)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'wawancara_ortu' }, _debouncedRealtimeLoad)
     .subscribe();
 }
 
@@ -1147,8 +1275,14 @@ async function upsertPesertaBulkRemote(pesertaList) {
 
 async function upsertSiswaBulkRemote(siswaList) {
   if (!usingSupabase() || !siswaList.length) return;
-  const rows = siswaList.filter(s => s.pesertaId).map(siswaToRemoteRow);
-  if (!rows.length) return;
+  // UUID regex — data lokal (genId) tidak bisa langsung upsert karena peserta_id harus FK UUID di Supabase
+  // Hanya kirim yang pesertaId-nya UUID valid
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const rows = siswaList.filter(s => s.pesertaId && uuidRe.test(s.pesertaId)).map(siswaToRemoteRow);
+  if (!rows.length) {
+    console.warn('upsertSiswaBulkRemote: semua pesertaId bukan UUID, lewati');
+    return;
+  }
   const { error } = await supabaseClient
     .from('wawancara_santri')
     .upsert(rows, { onConflict: 'peserta_id' });
@@ -1157,8 +1291,17 @@ async function upsertSiswaBulkRemote(siswaList) {
 
 async function upsertOrtuBulkRemote(ortuList) {
   if (!usingSupabase() || !ortuList.length) return;
-  const rows = ortuList.filter(o => o.siswaId || o.pesertaId).map(ortuToRemoteRow);
-  if (!rows.length) return;
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const rows = ortuList
+    .filter(o => {
+      const id = o.siswaId || o.pesertaId;
+      return id && uuidRe.test(id);
+    })
+    .map(ortuToRemoteRow);
+  if (!rows.length) {
+    console.warn('upsertOrtuBulkRemote: semua pesertaId bukan UUID, lewati');
+    return;
+  }
   const { error } = await supabaseClient
     .from('wawancara_ortu')
     .upsert(rows, { onConflict: 'peserta_id' });
